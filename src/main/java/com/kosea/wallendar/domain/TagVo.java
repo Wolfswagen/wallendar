@@ -3,6 +3,8 @@ package com.kosea.wallendar.domain;
 import java.util.Date;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -14,9 +16,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity(name = "post_tag")
+@Entity(name = "post_tags")
+@IdClass(PkPost.class)
 public class TagVo {
+
+	@Id
 	private String usertag;
-	private Date post_date;
+	@Id
+	private Date postdate;
+	@Id
 	private String tag;
 }

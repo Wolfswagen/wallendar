@@ -9,10 +9,6 @@
 <body>
 	<h2>Hello</h2>
 	<div>JSP List Test</div>
-	<c:forEach var="tags" items="${tags }">
-		${tags.tag} <br>
-	</c:forEach>
-	
 	${post }
 	<br>
 	<c:forEach var="tags" items="${tags }">

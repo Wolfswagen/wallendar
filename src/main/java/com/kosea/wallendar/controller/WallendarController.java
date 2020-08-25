@@ -2,44 +2,33 @@ package com.kosea.wallendar.controller;
 
 import java.util.List;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.kosea.wallendar.domain.PostVo;
-import com.kosea.wallendar.domain.TagVo;
-import com.kosea.wallendar.domain.UserVo;
-import com.kosea.wallendar.service.WallendarService;
+import com.kosea.wallendar.service.WallService;
 
-import lombok.AllArgsConstructor;
-
-@Controller
-@AllArgsConstructor
+@RestController
+@RequestMapping("/wall")
 public class WallendarController {
 
-	WallendarService service;
+	@Autowired
+	WallService service;
 
-	@RequestMapping("/home")
-	public String home() {
-		return "home";
-	}
 
-	@RequestMapping("/wall")
-	public ModelAndView testview() throws Exception {
-		ModelAndView mav = new ModelAndView("wall");
+	@GetMapping(value = { "/{usertag}" })
+	public ResponseEntity<List<PostVo>> getPosts(@PathVariable("usertag") String usertag) {
 		
 		
+		List<PostVo> posts = service.findAll(usertag);
 
-		PostVo post = service.getPost(service.getUser("test@email.com").getUsertag());
-
-		List<TagVo> tags = service.getTags(post);
-
-		mav.addObject("post", post);
-
-		mav.addObject("tags", tags);
-
-		return mav;
-	}
+		return new ResponseEntity<List<PostVo>>(posts, HttpStatus.OK);
+	} 
+	
 }

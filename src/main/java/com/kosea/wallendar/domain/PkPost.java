@@ -3,16 +3,17 @@ package com.kosea.wallendar.domain;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.Embeddable;
-
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@Embeddable
+@NoArgsConstructor
+@AllArgsConstructor
 public class PkPost implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String usertag;
-	private Date post_date;
+	private Date postdate;
 }
