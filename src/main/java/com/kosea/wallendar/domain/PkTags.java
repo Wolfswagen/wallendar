@@ -1,12 +1,10 @@
 package com.kosea.wallendar.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.IdClass;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,16 +12,11 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity(name = "post_tags")
-@IdClass(PkTags.class)
-public class TagVo {
-
-	@Id
+public class PkTags implements Serializable {
+	private static final long serialVersionUID = 1L;
 	private String usertag;
-	@Id
 	private Date postdate;
-	@Id
 	private String tag;
 }

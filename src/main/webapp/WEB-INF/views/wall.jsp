@@ -1,22 +1,33 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>View Test jsp</title>
-</head>
+<%@include file="../includes/header.jsp"%>
 <body>
-	<h2>Hello</h2>
+	<h2>WALL</h2>
 	<div>JSP List Test</div>
-	<c:forEach var="tags" items="${tags }">
-		${tags.tag} <br>
-	</c:forEach>
-	
-	${post }
+	${post.pic}
 	<br>
-	<c:forEach var="tags" items="${tags }">
-		${tags.tag} <br>
+	<br> #${post.usertag}
+	<c:forEach var="tag" items="${tags }">
+		#${tag.tag}
 	</c:forEach>
-</body>
-</html>
+
+	<form
+		action='/${post.usertag}/<fmt:formatDate pattern="yyyy-MM-dd" value="${ post.postdate}"/>'
+		method="post">
+		<input type="button" id="delete" value="delete">
+	</form>
+	<script>
+		$('#delete').click(function() {
+			$.ajax({
+				url: window.location.pathname,
+				type: "delete",
+				  success: (data, textStatus, jqXHR) => {
+				        console.log('success');
+				        console.log(data);
+				        console.log(textStatus);
+				        console.log(jqXHR);
+				        
+				    }
+			})
+			window.location.replace('/${post.usertag}');
+		});
+	</script>
+	<%@include file="../includes/footer.jsp"%>
