@@ -47,17 +47,6 @@ public class WallService {
 		return post;
 	}
 
-	public void updatePost(String usertag, Date postdate, byte[] pic) {
-		PkPost pk = PkPost.builder().usertag(usertag).postdate(postdate).build();
-		Optional<PostVo> e = postRepository.findById(pk);
-
-		if (e.isPresent()) {
-			PostVo post = PostVo.builder().usertag(usertag).postdate(postdate).pic(pic).build();
-
-			postRepository.save(post);
-		}
-	}
-
 	public void deletePost(String usertag, Date postdate) {
 		PkPost pk = PkPost.builder().usertag(usertag).postdate(postdate).build();
 		postRepository.deleteById(pk);
@@ -65,7 +54,7 @@ public class WallService {
 
 //	tags crud
 
-	public List<TagVo> saveTag(List<TagVo> tags) {
+	public List<TagVo> saveTags(List<TagVo> tags) {
 		tagRepository.saveAll(tags);
 
 		return tags;
@@ -80,21 +69,9 @@ public class WallService {
 		return tags;
 	}
 
-	public void updateTag(String usertag, Date postdate, String original, String target) {
-		PkTags pk = PkTags.builder().usertag(usertag).postdate(postdate).tag(original).build();
-		Optional<TagVo> e = tagRepository.findById(pk);
+	public void deleteTags(List<TagVo> tags) {
 
-		if (e.isPresent()) {
-			TagVo tag = TagVo.builder().usertag(usertag).postdate(postdate).tag(target).build();
-			tagRepository.deleteById(pk);
-			tagRepository.save(tag);
-		}
-	}
-
-	public void voidTag(String usertag, Date postdate, String tag) {
-		PkTags pk = PkTags.builder().usertag(usertag).postdate(postdate).tag(tag).build();
-
-		tagRepository.deleteById(pk);
+		tagRepository.deleteAll(tags);
 	}
 
 }

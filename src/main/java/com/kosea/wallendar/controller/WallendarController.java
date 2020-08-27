@@ -6,7 +6,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +23,7 @@ import com.kosea.wallendar.domain.TagVo;
 import com.kosea.wallendar.service.WallService;
 
 @RestController
-@RequestMapping("/{usertag}")
+@RequestMapping("/wall/{usertag}")
 public class WallendarController {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -52,9 +54,6 @@ public class WallendarController {
 
 		List<TagVo> tags = service.findTags(usertag, df.parse(postdate));
 
-		logger.info(usertag);
-
-		logger.info(tags.toString());
 
 		mav.addObject("post", post);
 
@@ -64,29 +63,31 @@ public class WallendarController {
 	}
 
 	@PostMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
-	public String savePost(@PathVariable("usertag") String usertag, String postdate, byte[] pic) throws Exception {
+	public ResponseEntity<Void> savePost(@PathVariable("usertag") String usertag, String postdate, byte[] pic)
+			throws Exception {
+
 		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).build();
 
 		service.savePost(post);
-
-		return "redirect:/" + usertag + "/" + postdate;
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
 	@PutMapping(value = "/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public String updatePost(@PathVariable("usertag") String usertag, @PathVariable("postdate") String postdate,
-			byte[] pic) throws Exception {
-
-		service.updatePost(usertag, df.parse(postdate), pic);
-
-		return "redirect:/" + usertag + "/" + postdate;
+	public ResponseEntity<Void> updateTags(@PathVariable("usertag") String usertag,
+			@PathVariable("postdate") String postdate, List<TagVo> deleteTags, List<TagVo> saveTags) throws Exception {
+		if (!deleteTags.isEmpty()) {
+			service.deleteTags(deleteTags);
+		}
+		if (!saveTags.isEmpty()) {
+			service.saveTags(saveTags);
+		}
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
 	@DeleteMapping(value = "/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public String deletePost(@PathVariable("usertag") String usertag, @PathVariable("postdate") String postdate)
-			throws Exception {
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+	public ResponseEntity<Void> deletePost(@PathVariable("usertag") String usertag,
+			@PathVariable("postdate") String postdate) throws Exception {
 		service.deletePost(usertag, df.parse(postdate));
-
-		return "redirect:/" + usertag;
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 }
