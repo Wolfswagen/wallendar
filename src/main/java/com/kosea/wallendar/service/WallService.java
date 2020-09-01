@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.kosea.wallendar.domain.PkPost;
-import com.kosea.wallendar.domain.PkTags;
 import com.kosea.wallendar.domain.PostVo;
 import com.kosea.wallendar.domain.TagVo;
 import com.kosea.wallendar.repository.PostRepository;

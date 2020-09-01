@@ -5,7 +5,6 @@ import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
-import javax.persistence.Lob;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -25,7 +24,7 @@ public class PostVo {
 	private String usertag;
 	@Id
 	private Date postdate;
-	@Lob
-	private byte[] pic;
+	
+	private String pic;
 
 }
