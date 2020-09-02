@@ -6,15 +6,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class WallendarController {
 	
-	@RequestMapping("/wall")
+	@RequestMapping("/calendar/{usertag}")
 	public String calendarView() {
 		return "calendar";
 	}
 	
-	@RequestMapping("/wall/post")
-	public String wallView() {
-		return "wall";
-	}
 
 
 }

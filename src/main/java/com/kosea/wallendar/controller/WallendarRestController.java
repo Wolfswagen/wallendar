@@ -2,7 +2,9 @@ package com.kosea.wallendar.controller;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +29,7 @@ import com.kosea.wallendar.domain.TagVo;
 import com.kosea.wallendar.service.WallService;
 
 @RestController
-@RequestMapping("/wall/{usertag}")
+@RequestMapping("/{usertag}")
 public class WallendarRestController {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -48,16 +50,15 @@ public class WallendarRestController {
 	@GetMapping(value = "/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<PostVo> getOnePost(@PathVariable("usertag") String usertag,
 			@PathVariable("postdate") String postdate) throws Exception {
-		
+
 		Optional<PostVo> post = service.findOne(usertag, df.parse(postdate));
-		
-		if(post.isPresent()) {
+
+		if (post.isPresent()) {
 			return new ResponseEntity<PostVo>(post.get(), HttpStatus.OK);
-		}else {
+		} else {
 			return new ResponseEntity<PostVo>(HttpStatus.NO_CONTENT);
 		}
 
-		
 	}
 
 	@GetMapping(value = "/{postdate}/tags", produces = { MediaType.APPLICATION_JSON_VALUE })
@@ -69,39 +70,126 @@ public class WallendarRestController {
 		return new ResponseEntity<List<TagVo>>(tags, HttpStatus.OK);
 	}
 
-	@PostMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Void> savePost(@PathVariable("usertag") String usertag, String postdate,
-			@RequestParam MultipartFile upload) throws Exception {
+	@PostMapping(value = "/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<Void> savePost(@PathVariable("usertag") String usertag,
+			@PathVariable("postdate") String postdate, @RequestParam MultipartFile upload) throws Exception {
 
-		String upPath = "/upload" + usertag;
+		String upPath = "C:/Users/K-joon/git/wallendar/src/main/resources/static/upload/" + usertag;
 
 		String pic = upload.getOriginalFilename();
 
-		pic = usertag + "_" + postdate + "_" + pic.substring(pic.lastIndexOf("\\") + 1);
+		pic = postdate + "_" + pic.substring(pic.lastIndexOf("\\") + 1);
+
+		File saveDir = new File(upPath);
 
 		File savePic = new File(upPath, pic);
 
-		try {
-			upload.transferTo(savePic);
-		} catch (Exception e) {
-			logger.info(e.getMessage());
+		if (saveDir.exists()) {
+			try {
+				upload.transferTo(savePic);
+			} catch (Exception e) {
+				logger.info(e.getMessage());
+			}
+		} else {
+			saveDir.mkdir();
+			logger.info("mkdir : " + String.valueOf(saveDir.exists()));
+			try {
+				upload.transferTo(savePic);
+			} catch (Exception e) {
+				logger.info(e.getMessage());
+			}
 		}
 
-		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).pic(savePic.getPath()).build();
+		String picPath = "upload/" + usertag + "/" + pic;
+
+		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).pic(picPath).build();
 		service.savePost(post);
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
+	@PostMapping(value = "/{postdate}/tags", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<Void> saveTags(@PathVariable("usertag") String usertag,
+			@PathVariable("postdate") String postdate, @RequestParam List<String> tags) throws Exception {
+
+		logger.info(tags.toString());
+
+		List<TagVo> tagList = new ArrayList<TagVo>();
+
+		for (String t : tags) {
+			TagVo tag = TagVo.builder().usertag(usertag).postdate(df.parse(postdate)).tag(t).build();
+			tagList.add(tag);
+		}
+
+		logger.info(tagList.toString());
+
+		service.saveTags(tagList);
+
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+	}
+
 	@PutMapping(value = "/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<Void> updatePost(@PathVariable("usertag") String usertag,
+			@PathVariable("postdate") String postdate, @RequestParam MultipartFile upload) throws Exception {
+
+		String upPath = "C:/Users/K-joon/git/wallendar/src/main/resources/static/upload/" + usertag;
+
+		String pic = upload.getOriginalFilename();
+
+		pic = postdate + "_" + pic.substring(pic.lastIndexOf("\\") + 1);
+
+		File saveDir = new File(upPath);
+
+		File savePic = new File(upPath, pic);
+
+		if (saveDir.exists()) {
+			try {
+				upload.transferTo(savePic);
+			} catch (Exception e) {
+				logger.info(e.getMessage());
+			}
+		} else {
+			saveDir.mkdir();
+			logger.info("mkdir : " + String.valueOf(saveDir.exists()));
+			try {
+				upload.transferTo(savePic);
+			} catch (Exception e) {
+				logger.info(e.getMessage());
+			}
+		}
+
+		String picPath = "upload/" + usertag + "/" + pic;
+
+		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).pic(picPath).build();
+
+		service.updateById(usertag, df.parse(postdate), post);
+
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+	}
+
+	@PutMapping(value = "/{postdate}/tags", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> updateTags(@PathVariable("usertag") String usertag,
-			@PathVariable("postdate") String postdate, List<TagVo> deleteTags, List<TagVo> saveTags) throws Exception {
-		if (!deleteTags.isEmpty()) {
-			service.deleteTags(deleteTags);
+			@PathVariable("postdate") String postdate, @RequestParam List<String> saveTags,
+			@RequestParam List<String> deleteTags) throws Exception {
+
+		List<TagVo> deleteList = new ArrayList<TagVo>();
+
+		for (String t : deleteTags) {
+			TagVo tag = TagVo.builder().usertag(usertag).postdate(df.parse(postdate)).tag(t).build();
+			deleteList.add(tag);
 		}
-		if (!saveTags.isEmpty()) {
-			service.saveTags(saveTags);
+
+		service.deleteTags(deleteList);
+
+		List<TagVo> saveList = new ArrayList<TagVo>();
+
+		for (String t : saveTags) {
+			TagVo tag = TagVo.builder().usertag(usertag).postdate(df.parse(postdate)).tag(t).build();
+			saveList.add(tag);
 		}
+
+		service.saveTags(saveList);
+
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 

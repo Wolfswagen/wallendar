@@ -46,6 +46,18 @@ public class WallService {
 		return post;
 	}
 
+	public void updateById(String usertag, Date postdate, PostVo post) {
+
+		PkPost pk = PkPost.builder().usertag(usertag).postdate(postdate).build();
+
+		Optional<PostVo> e = postRepository.findById(pk);
+
+		if (e.isPresent()) {
+
+			postRepository.save(post);
+		}
+	}
+
 	public void deletePost(String usertag, Date postdate) {
 		PkPost pk = PkPost.builder().usertag(usertag).postdate(postdate).build();
 		postRepository.deleteById(pk);
@@ -69,7 +81,6 @@ public class WallService {
 	}
 
 	public void deleteTags(List<TagVo> tags) {
-
 		tagRepository.deleteAll(tags);
 	}
 
