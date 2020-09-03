@@ -24,7 +24,8 @@ public class PostVo {
 	private String usertag;
 	@Id
 	private Date postdate;
-	
-	private String pic;
 
+	private String pic;
+	
+	private String tags;
 }

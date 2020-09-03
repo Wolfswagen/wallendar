@@ -10,9 +10,11 @@ import com.kosea.wallendar.domain.PostVo;
 
 @Repository
 public interface PostRepository extends JpaRepository<PostVo, PkPost> {
-	
+
 	public List<PostVo> findByUsertag(String usertag);
-	
+
 	public List<PostVo> findByPostdate(Date postdate);
+
+	public List<PostVo> findByTagsLike(String tags);
 
 }

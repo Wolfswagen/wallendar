@@ -11,6 +11,10 @@ public class WallendarController {
 		return "calendar";
 	}
 	
-
+	
+	@RequestMapping("/wall/")
+	public void wallView() {
+		
+	}
 
 }

@@ -4,7 +4,8 @@
 
 <div id='calendar'></div>
 <!--calendar  -->
-<div class="modal fade " id="readModal" role="dialog">
+<!-- read modal -->
+<div class="modal fade" id="readModal" role="dialog">
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -27,8 +28,8 @@
 				</div>
 
 				<div class="p-5">
-
 					<h5>Tags</h5>
+					<div class="input-group-prepend" id="user-tag"></div>
 					<p class="form-control-plaintext text-left" id="tags"></p>
 				</div>
 
@@ -39,7 +40,7 @@
 		</div>
 	</div>
 </div>
-<!-- read modal -->
+<!-- read modal end -->
 
 <div class="modal fade" id="postModal" role="dialog">
 	<div class="modal-dialog  modal-lg" role="document">
@@ -52,7 +53,7 @@
 			</div>
 			<div class="modal-body modal-lg">
 				<div class="text-center p-3">
-					<img class="img-fluid" id="preview">
+					<img class="img-fluid mw-25" id="preview">
 				</div>
 				<div class="input-group p-3">
 					<div class="input-group-prepend">
@@ -89,7 +90,6 @@
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 						<button type="button" class="btn btn-primary" id="post">Post</button>
-						<button type="button" class="btn btn-primary" id="update">Update</button>
 					</div>
 				</div>
 			</div>
@@ -105,8 +105,9 @@
 	document.addEventListener('DOMContentLoaded', function() {
 		var calendarEl = document.getElementById('calendar');
 		var url = location.pathname.replace("calendar/", "");
-		var result;
+
 		var usertag = url.replace("/", "");
+		var result;
 		$.ajax({
 			url : url,
 			contentType : "JSON",
@@ -116,20 +117,6 @@
 				result = response
 			}
 		});
-
-		function formDate(date) {
-			date = FullCalendar.formatDate(date, {
-				month : '2-digit',
-				year : 'numeric',
-				day : '2-digit',
-				locale : "kr"
-			});
-			date = date.replace(/ /g, "");
-			date = date.replace(/\./g, "-");
-			date = date.substring(0, 10);
-
-			return date;
-		}
 
 		var events = new Array();
 
@@ -142,6 +129,7 @@
 			events.push(data);
 		}
 
+		/* calendar init */
 		var calendar = new FullCalendar.Calendar(calendarEl, {
 			initialView : 'dayGridMonth',
 			selectable : true,
@@ -158,6 +146,7 @@
 					$(el).css({
 						"background-image" : "url(../" + event.extendedProps.imageurl + ")"
 					});
+
 					$(el).closest("td").attr("data-toggle", "modal");
 					$(el).closest("td").attr("data-target", "#readModal");
 					$(el).closest("td").append('<input type="hidden" id="picpath" value= "'+event.extendedProps.imageurl+'">');
@@ -165,48 +154,44 @@
 			}
 		});
 		calendar.render();
+		/* calendar rendered */
 
 		if ($(".fc-day-today").attr("data-toggle") == undefined) {
 			$(".fc-day-today").attr("data-toggle", "modal");
 			$(".fc-day-today").attr("data-target", "#postModal");
 		}
-
+		/* modal */
 		$('#readModal').on('show.bs.modal', function(event) {
+
 			var postdate = $(".fc-highlight").closest("td").attr("data-date");
 			var pic = "../" + $(".fc-highlight").closest("td").find("#picpath").val();
 			var tags;
 			$.ajax({
-				url : url + "/" + postdate + "/tags",
+				url : url + "/" + postdate,
 				contentType : "JSON",
 				type : "GET",
 				async : false,
 				success : function(response) {
-					tags = response;
+					tags = response["tags"];
 				}
 			});
 			$('#readModal .modal-title').text(postdate);
+			$('#readModal #user-tag').text("@" + usertag);
 			$('#pic').attr("src", pic);
-			$('#tags').empty();
-
-			$('#tags').append("<b>@" + usertag + "<b><br>");
-			for ( var tag in tags) {
-				$('#tags').append("#" + tags[tag]["tag"]);
-			}
+			$('#tags').text(tags);
 		});
 
 		$('#postModal').on('show.bs.modal', function(event) {
 			var postdate = $(".fc-highlight").closest("td").attr("data-date");
-			var tags;
 			$('#postModal .modal-title').text(postdate);
 			$('#upload').empty();
 			$('#preview').attr("src", "");
 			$('#uploadlabel').text("Choose File");
-			$('#user-tag').text("@" + usertag);
+			$('#postModal #user-tag').text("@" + usertag);
 			$('#input-tag').val('');
 			$('#added-tags').empty();
-			$('#update').hide();
+			$('#post').text("Post");
 			$('#delete-tags').val('');
-
 		});
 
 		$('#addtag').on('click', function(e) {
@@ -223,16 +208,32 @@
 		});
 
 		$("#post").on("click", function(e) {
+			var method = "POST"
+			if ($('#post').text == "Update") {
+				method = "PUT"
+			}
 
 			var res = 0;
 
 			if ($("#upload")[0].files.length > 0) {
 
+
 				var data = new FormData();
+
+				var tags = "";
+
+				var btns = $('#added-tags .btn');
+
+				for (var i = 0; i < btns.length; i++) {
+					var tag = $(btns[i]).text().replace(" x", '');
+					tags = tags + tag;
+				}
 
 				var postdate = $("#postModal .modal-title").text();
 
 				data.append("upload", $("#upload")[0].files[0]);
+
+				data.append("tags", tags)
 
 				$.ajax({
 					url : url + "/" + postdate,
@@ -240,43 +241,14 @@
 					contentType : false,
 					async : false,
 					data : data,
-					type : "POST",
+					type : method,
 					success : function(result) {
 						res = 1;
 					},
 					error : function(request, status, error) {
-						res = 0;
-						alert("post error");
+						alert($('#post').text() + "error");
 					}
 				});
-
-				var tagArray = new Array();
-
-				var btns = $('#added-tags .btn');
-
-				if (btns.length > 0) {
-					for (var i = 0; i < btns.length; i++) {
-						var tag = $(btns[i]).text();
-						tagArray.push(tag.substring(1, tag.length - 2));
-					}
-
-					var tags = {
-						"tags" : tagArray
-					}
-
-					$.ajax({
-						url : url + "/" + postdate + '/tags',
-						dataType : "json",
-						traditional : true,
-						async : false,
-						data : tags,
-						type : "POST",
-						error : function(request, status, error) {
-							res = 0;
-							alert("tag post error");
-						}
-					});
-				}
 
 			} else {
 				alert("must put image");
@@ -287,86 +259,15 @@
 			}
 		});
 
-		$("#update").on("click", function(e) {
-
-			var res = 1;
-
-			var postdate = $("#postModal .modal-title").text();
-
-			if ($("#upload")[0].files.length > 0) {
-
-				var data = new FormData();
-
-				data.append("upload", $("#upload")[0].files[0]);
-
-				$.ajax({
-					url : url + "/" + postdate,
-					processData : false,
-					contentType : false,
-					async : false,
-					data : data,
-					type : "PUT",
-					error : function(request, status, error) {
-						res = 0;
-						alert("post error");
-					}
-				});
-
-			}
-
-			var saveTags = new Array();
-
-			var deleteTags = new Array();
-
-			var addtags = $('#added-tags .btn');
-
-			var deltags = $("#delete-tags input");
-
-			for (var i = 0; i < addtags.length; i++) {
-				var tag = $(addtags[i]).text();
-				saveTags.push(tag.substring(1, tag.length - 2));
-			}
-
-			for (var i = 0; i < deltags.length; i++) {
-				var tag = $(deltags[i]).val();
-				deleteTags.push(tag);
-			}
-
-			if (deleteTags.length == 0) {
-				deleteTags.push("");
-			}
-			
-			if (saveTags.length == 0) {
-				saveTags.push("");
-			}
-
-			var tags = {
-				"saveTags" : saveTags,
-				"deleteTags" : deleteTags
-			}
-			
-
-			console.log(tags.saveTags)
-			console.log(tags.deleteTags)
-
-			$.ajax({
-				url : url + "/" + postdate + '/tags',
-				dataType : "json",
-				traditional : true,
-				async : false,
-				data : tags,
-				type : "PUT",
-				error : function(request, status, error) {
-					res = 0;
-					alert("tag post error");
-				}
-			});
-
-			if (res == 1) {
-				window.location.reload();
+		$('body').on('hidden.bs.modal', function() {
+			if ($('.modal:visible').length > 0) {
+				$('body').addClass('modal-open');
 			}
 		});
 
+		$("#upload").change(function() {
+			readURL(this);
+		});
 	});
 
 	function readURL(input) {
@@ -400,27 +301,37 @@
 	}
 
 	function updatePost() {
-		$('#readModal').modal('hide');
+
+		$('#readModal').modal("hide");
+
 		var postdate = $('#readModal .modal-title').text();
 		var url = location.pathname.replace("calendar/", "");
 		var pic = $('#readModal #pic').attr("src");
 		var tags = $('#tags').text().split("#");
 
 		$('#postModal').modal("show");
+
 		$('#postModal .modal-title').text(postdate);
 		$('#preview').attr("src", pic);
-		$('#post').toggle();
-		$('#update').toggle();
+		$('#post').text("Update");
 		for (var i = 1; i < tags.length; i++) {
 			$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tags[i] + ' x</button>')
 		}
-		$('#post').text("Update");
-
 	}
 
-	$("#upload").change(function() {
-		readURL(this);
-	});
+	function formDate(date) {
+		date = FullCalendar.formatDate(date, {
+			month : '2-digit',
+			year : 'numeric',
+			day : '2-digit',
+			locale : "kr"
+		});
+		date = date.replace(/ /g, "");
+		date = date.replace(/\./g, "-");
+		date = date.substring(0, 10);
+
+		return date;
+	}
 </script>
 
 <%@include file="../includes/footer.jsp"%>

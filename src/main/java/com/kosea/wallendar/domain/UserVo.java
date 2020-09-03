@@ -1,5 +1,6 @@
 package com.kosea.wallendar.domain;
 
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 

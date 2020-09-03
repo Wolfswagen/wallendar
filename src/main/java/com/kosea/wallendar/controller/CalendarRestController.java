@@ -2,9 +2,7 @@ package com.kosea.wallendar.controller;
 
 import java.io.File;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,17 +23,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.kosea.wallendar.domain.PostVo;
-import com.kosea.wallendar.domain.TagVo;
-import com.kosea.wallendar.service.WallService;
+import com.kosea.wallendar.service.WallendarService;
 
 @RestController
 @RequestMapping("/{usertag}")
-public class WallendarRestController {
+public class CalendarRestController {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	WallService service;
+	WallendarService service;
 
 	DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -61,22 +58,14 @@ public class WallendarRestController {
 
 	}
 
-	@GetMapping(value = "/{postdate}/tags", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<List<TagVo>> getTags(@PathVariable("usertag") String usertag,
-			@PathVariable("postdate") String postdate) throws Exception {
-
-		List<TagVo> tags = service.findTags(usertag, df.parse(postdate));
-
-		return new ResponseEntity<List<TagVo>>(tags, HttpStatus.OK);
-	}
-
 	@PostMapping(value = "/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> savePost(@PathVariable("usertag") String usertag,
-			@PathVariable("postdate") String postdate, @RequestParam MultipartFile upload) throws Exception {
+			@PathVariable("postdate") String postdate, @RequestParam MultipartFile upload, @RequestParam String tags)
+			throws Exception {
 
 		String upPath = "C:/Users/K-joon/git/wallendar/src/main/resources/static/upload/" + usertag;
 
-		String pic = upload.getOriginalFilename();
+		String pic = upload.getOriginalFilename().replaceAll(" ", "_");
 
 		pic = postdate + "_" + pic.substring(pic.lastIndexOf("\\") + 1);
 
@@ -102,41 +91,22 @@ public class WallendarRestController {
 
 		String picPath = "upload/" + usertag + "/" + pic;
 
-		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).pic(picPath).build();
+		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).pic(picPath).tags(tags).build();
 		service.savePost(post);
-
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-	}
-
-	@PostMapping(value = "/{postdate}/tags", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Void> saveTags(@PathVariable("usertag") String usertag,
-			@PathVariable("postdate") String postdate, @RequestParam List<String> tags) throws Exception {
-
-		logger.info(tags.toString());
-
-		List<TagVo> tagList = new ArrayList<TagVo>();
-
-		for (String t : tags) {
-			TagVo tag = TagVo.builder().usertag(usertag).postdate(df.parse(postdate)).tag(t).build();
-			tagList.add(tag);
-		}
-
-		logger.info(tagList.toString());
-
-		service.saveTags(tagList);
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
 	@PutMapping(value = "/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> updatePost(@PathVariable("usertag") String usertag,
-			@PathVariable("postdate") String postdate, @RequestParam MultipartFile upload) throws Exception {
+			@PathVariable("postdate") String postdate, @RequestParam MultipartFile upload, @RequestParam String tags)
+			throws Exception {
 
 		String upPath = "C:/Users/K-joon/git/wallendar/src/main/resources/static/upload/" + usertag;
 
 		String pic = upload.getOriginalFilename();
 
-		pic = postdate + "_" + pic.substring(pic.lastIndexOf("\\") + 1);
+		pic = postdate + "_" + upload.getOriginalFilename().replaceAll(" ", "_");
 
 		File saveDir = new File(upPath);
 
@@ -160,35 +130,9 @@ public class WallendarRestController {
 
 		String picPath = "upload/" + usertag + "/" + pic;
 
-		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).pic(picPath).build();
+		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).pic(picPath).tags(tags).build();
 
 		service.updateById(usertag, df.parse(postdate), post);
-
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-	}
-
-	@PutMapping(value = "/{postdate}/tags", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Void> updateTags(@PathVariable("usertag") String usertag,
-			@PathVariable("postdate") String postdate, @RequestParam List<String> saveTags,
-			@RequestParam List<String> deleteTags) throws Exception {
-
-		List<TagVo> deleteList = new ArrayList<TagVo>();
-
-		for (String t : deleteTags) {
-			TagVo tag = TagVo.builder().usertag(usertag).postdate(df.parse(postdate)).tag(t).build();
-			deleteList.add(tag);
-		}
-
-		service.deleteTags(deleteList);
-
-		List<TagVo> saveList = new ArrayList<TagVo>();
-
-		for (String t : saveTags) {
-			TagVo tag = TagVo.builder().usertag(usertag).postdate(df.parse(postdate)).tag(t).build();
-			saveList.add(tag);
-		}
-
-		service.saveTags(saveList);
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
@@ -199,4 +143,5 @@ public class WallendarRestController {
 		service.deletePost(usertag, df.parse(postdate));
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
+
 }
