@@ -9,8 +9,6 @@ import com.kosea.wallendar.domain.UserVo;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserVo, String> {
-	
-	
 	List<UserVo> findByEmail(String email);
 	
 }

@@ -15,6 +15,6 @@ public interface PostRepository extends JpaRepository<PostVo, PkPost> {
 
 	public List<PostVo> findByPostdate(Date postdate);
 
-	public List<PostVo> findByTagsLike(String tags);
+	public List<PostVo> findByTagsContaining(String tags);
 
 }

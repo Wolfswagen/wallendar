@@ -4,7 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-public class WallendarController {
+public class ViewController {
 	
 	@RequestMapping("/calendar/{usertag}")
 	public String calendarView() {
@@ -12,9 +12,9 @@ public class WallendarController {
 	}
 	
 	
-	@RequestMapping("/wall/")
-	public void wallView() {
-		
+	@RequestMapping("/wall/{keyword}")
+	public String wallView() {
+		return "wall";
 	}
 
 }

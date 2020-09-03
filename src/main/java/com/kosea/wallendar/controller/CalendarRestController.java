@@ -3,7 +3,10 @@ package com.kosea.wallendar.controller;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -26,7 +29,7 @@ import com.kosea.wallendar.domain.PostVo;
 import com.kosea.wallendar.service.WallendarService;
 
 @RestController
-@RequestMapping("/{usertag}")
+@RequestMapping("/post")
 public class CalendarRestController {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -36,15 +39,25 @@ public class CalendarRestController {
 
 	DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
-	@GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<List<PostVo>> getPosts(@PathVariable("usertag") String usertag) {
+	@GetMapping(value = "{tag}", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<Map<String, Object>> searchTag(@PathVariable("tag") String tag) {
 
-		List<PostVo> posts = service.findAll(usertag);
+		logger.info(tag);
 
-		return new ResponseEntity<List<PostVo>>(posts, HttpStatus.OK);
+		List<PostVo> userPost = service.findAll(tag);
+
+		List<PostVo> tagPost = service.searchByTag(tag);
+
+		Map<String, Object> posts = new HashMap<String, Object>();
+
+		posts.put("userpost", userPost);
+
+		posts.put("tagpost", tagPost);
+
+		return new ResponseEntity<Map<String, Object>>(posts, HttpStatus.OK);
 	}
 
-	@GetMapping(value = "/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
+	@GetMapping(value = "/{usertag}/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<PostVo> getOnePost(@PathVariable("usertag") String usertag,
 			@PathVariable("postdate") String postdate) throws Exception {
 
@@ -58,7 +71,7 @@ public class CalendarRestController {
 
 	}
 
-	@PostMapping(value = "/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
+	@PostMapping(value = "/{usertag}/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> savePost(@PathVariable("usertag") String usertag,
 			@PathVariable("postdate") String postdate, @RequestParam MultipartFile upload, @RequestParam String tags)
 			throws Exception {
@@ -97,47 +110,50 @@ public class CalendarRestController {
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
-	@PutMapping(value = "/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
+	@PutMapping(value = "/{usertag}/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> updatePost(@PathVariable("usertag") String usertag,
-			@PathVariable("postdate") String postdate, @RequestParam MultipartFile upload, @RequestParam String tags)
-			throws Exception {
+			@PathVariable("postdate") String postdate, @RequestParam(required = false) MultipartFile upload,
+			@RequestParam String tags) throws Exception {
 
-		String upPath = "C:/Users/K-joon/git/wallendar/src/main/resources/static/upload/" + usertag;
+		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).tags(tags).build();
 
-		String pic = upload.getOriginalFilename();
+		if (upload != null) {
+			String upPath = "C:/Users/K-joon/git/wallendar/src/main/resources/static/upload/" + usertag;
 
-		pic = postdate + "_" + upload.getOriginalFilename().replaceAll(" ", "_");
+			String pic = upload.getOriginalFilename();
 
-		File saveDir = new File(upPath);
+			pic = postdate + "_" + upload.getOriginalFilename().replaceAll(" ", "_");
 
-		File savePic = new File(upPath, pic);
+			File saveDir = new File(upPath);
 
-		if (saveDir.exists()) {
-			try {
-				upload.transferTo(savePic);
-			} catch (Exception e) {
-				logger.info(e.getMessage());
+			File savePic = new File(upPath, pic);
+
+			if (saveDir.exists()) {
+				try {
+					upload.transferTo(savePic);
+				} catch (Exception e) {
+					logger.info(e.getMessage());
+				}
+			} else {
+				saveDir.mkdir();
+				logger.info("mkdir : " + String.valueOf(saveDir.exists()));
+				try {
+					upload.transferTo(savePic);
+				} catch (Exception e) {
+					logger.info(e.getMessage());
+				}
 			}
-		} else {
-			saveDir.mkdir();
-			logger.info("mkdir : " + String.valueOf(saveDir.exists()));
-			try {
-				upload.transferTo(savePic);
-			} catch (Exception e) {
-				logger.info(e.getMessage());
-			}
+
+			String picPath = "upload/" + usertag + "/" + pic;
+			post.setPic(picPath);
 		}
-
-		String picPath = "upload/" + usertag + "/" + pic;
-
-		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).pic(picPath).tags(tags).build();
 
 		service.updateById(usertag, df.parse(postdate), post);
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
-	@DeleteMapping(value = "/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
+	@DeleteMapping(value = "/{usertag}/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> deletePost(@PathVariable("usertag") String usertag,
 			@PathVariable("postdate") String postdate) throws Exception {
 		service.deletePost(usertag, df.parse(postdate));

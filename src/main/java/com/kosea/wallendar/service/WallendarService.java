@@ -37,6 +37,7 @@ public class WallendarService {
 		logger.info(posts.toString());
 
 		return posts;
+
 	}
 
 	public Optional<PostVo> findOne(String usertag, Date postdate) {
@@ -50,7 +51,7 @@ public class WallendarService {
 		return post;
 	}
 
-	public List<PostVo> findAllByPostDate(Date postdate) {
+	public List<PostVo> SearchByPostDate(Date postdate) {
 
 		List<PostVo> posts = new ArrayList<PostVo>();
 
@@ -60,11 +61,11 @@ public class WallendarService {
 
 	}
 
-	public List<PostVo> findAllByTag(String tag) {
+	public List<PostVo> searchByTag(String tag) {
 
 		List<PostVo> posts = new ArrayList<PostVo>();
 
-		postRepository.findByTagsLike("#" + tag + "#").forEach(e -> posts.add(e));
+		postRepository.findByTagsContaining("#" + tag + "#").forEach(e -> posts.add(e));
 
 		return posts;
 
@@ -77,6 +78,9 @@ public class WallendarService {
 		Optional<PostVo> e = postRepository.findById(pk);
 
 		if (e.isPresent()) {
+			if (post.getPic() == null) {
+				post.setPic(e.get().getPic());
+			}
 			postRepository.save(post);
 		}
 	}

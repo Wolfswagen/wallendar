@@ -104,9 +104,10 @@
 <script charset="utf-8">
 	document.addEventListener('DOMContentLoaded', function() {
 		var calendarEl = document.getElementById('calendar');
-		var url = location.pathname.replace("calendar/", "");
+		var url = location.pathname.replace("calendar", "post");
 
-		var usertag = url.replace("/", "");
+		var usertag = url.replace("/post/", "");
+
 		var result;
 		$.ajax({
 			url : url,
@@ -114,7 +115,8 @@
 			type : "GET",
 			async : false,
 			success : function(response) {
-				result = response
+				console.log(response["userpost"])
+				result = response["userpost"]
 			}
 		});
 
@@ -141,14 +143,11 @@
 				let event = info.event;
 				if (event.extendedProps.imageurl) {
 					$(el).css({
-						"background-size" : "cover"
-					});
-					$(el).css({
+						"background-size" : "cover",
 						"background-image" : "url(../" + event.extendedProps.imageurl + ")"
 					});
 
-					$(el).closest("td").attr("data-toggle", "modal");
-					$(el).closest("td").attr("data-target", "#readModal");
+					$(el).closest("td").attr("data-toggle", "modal").attr("data-target", "#readModal");
 					$(el).closest("td").append('<input type="hidden" id="picpath" value= "'+event.extendedProps.imageurl+'">');
 				}
 			}
@@ -173,8 +172,11 @@
 				async : false,
 				success : function(response) {
 					tags = response["tags"];
+					console.log(tags);
 				}
 			});
+
+			tags = tags.substring(0, tags.length - 1);
 			$('#readModal .modal-title').text(postdate);
 			$('#readModal #user-tag').text("@" + usertag);
 			$('#pic').attr("src", pic);
@@ -195,10 +197,11 @@
 		});
 
 		$('#addtag').on('click', function(e) {
-			if ($('#input-tag').val().length > 0) {
-				$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + $('#input-tag').val() + ' x</button>')
-				$('#input-tag').val("");
+			var tag = $('#input-tag').val().replace(/ /gi, "");
+			if (tag.length > 0) {
+				$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tag + ' x</button>')
 			}
+			$('#input-tag').val("");
 		});
 
 		$('#added-tags').on('click', function(e) {
@@ -209,14 +212,14 @@
 
 		$("#post").on("click", function(e) {
 			var method = "POST"
-			if ($('#post').text == "Update") {
+
+			if ($('#post').text() == "Update") {
 				method = "PUT"
 			}
 
 			var res = 0;
 
-			if ($("#upload")[0].files.length > 0) {
-
+			if ($("#upload")[0].files.length > 0 || method == "PUT") {
 
 				var data = new FormData();
 
@@ -229,9 +232,19 @@
 					tags = tags + tag;
 				}
 
+				tags = tags + "#";
+
 				var postdate = $("#postModal .modal-title").text();
 
-				data.append("upload", $("#upload")[0].files[0]);
+				var upload = "";
+
+				if ($("#upload")[0].files[0] != undefined) {
+					upload = $("#upload")[0].files[0];
+				}
+
+				data.append("upload", upload);
+
+				console.log(upload);
 
 				data.append("tags", tags)
 
