@@ -1,12 +1,11 @@
 <%@include file="../includes/header.jsp"%>
 <link href='../fullcalendar/lib/main.css' rel='stylesheet' />
-<script src='../fullcalendar/lib/main.js' charset="utf-8"></script>
 
 <div id='calendar'></div>
 <!--calendar  -->
 <!-- read modal -->
 <div class="modal fade" id="readModal" role="dialog">
-	<div class="modal-dialog modal-lg" role="document">
+	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="readModalLabel">Wallendar</h5>
@@ -15,21 +14,20 @@
 				</button>
 			</div>
 			<div class="modal-body">
+				<h5 class="input-group-prepend" id="user-tag"></h5>
 				<div class="text-center">
 					<img class="img-fluid" id="pic">
 				</div>
-				<div class="dropdown float-right">
+				<div class="dropdown float-right" id="udmenu">
 					<button class="btn btn-secondary dropdown-toggle btn-sm" type="button" id="dropdownMenuButton"
 						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
 					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-						<a class="dropdown-item" href='javascript:void(0);' onclick="deletePost();">Delete</a> <a
-							class="dropdown-item" href='javascript:void(0);' onclick="updatePost();">Update</a>
+						<a class="dropdown-item" id="deletea">Delete</a> <a class="dropdown-item" id="updatea">Update</a>
 					</div>
 				</div>
 
 				<div class="p-5">
 					<h5>Tags</h5>
-					<div class="input-group-prepend" id="user-tag"></div>
 					<p class="form-control-plaintext text-left" id="tags"></p>
 				</div>
 
@@ -43,7 +41,7 @@
 <!-- read modal end -->
 
 <div class="modal fade" id="postModal" role="dialog">
-	<div class="modal-dialog  modal-lg" role="document">
+	<div class="modal-dialog  modal-xl" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="postModalLabel">Post</h5>
@@ -51,7 +49,8 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<div class="modal-body modal-lg">
+			<div class="modal-body">
+				<h5 class="input-group-prepend" id="user-tag"></h5>
 				<div class="text-center p-3">
 					<img class="img-fluid mw-25" id="preview">
 				</div>
@@ -66,14 +65,10 @@
 				</div>
 				<div class="form-group p-3">
 					<label class="col-form-label">Tags</label>
-
 					<div class="input-group flexnowrap">
-						<div class="input-group-prepend" id="user-tag"></div>
+
 						<div class="input-group-append btn-group" role="group" aria-label="tags-btn" id="added-tags">
 						</div>
-
-						<div class="input-group-append btn-group" role="group" aria-label="tags-btn" id="delete-tags"
-							hidden="true"></div>
 
 						<div class="input-group flexnowrap">
 							<div class="input-group-prepend">
@@ -107,6 +102,10 @@
 		var url = location.pathname.replace("calendar", "post");
 
 		var usertag = url.replace("/post/", "");
+		
+		if(usertag != $('#logged-on-user').text()){
+			$('#udmenu').hide();
+		}
 
 		var result;
 		$.ajax({
@@ -115,7 +114,6 @@
 			type : "GET",
 			async : false,
 			success : function(response) {
-				console.log(response["userpost"])
 				result = response["userpost"]
 			}
 		});
@@ -128,6 +126,7 @@
 			data.start = postdate;
 			data.imageurl = result[i]["pic"];
 			data.display = "background";
+			data.backgroundColor = "white";
 			events.push(data);
 		}
 
@@ -141,14 +140,15 @@
 				let el = info.el;
 
 				let event = info.event;
+				var $td = $(el).closest("td");
 				if (event.extendedProps.imageurl) {
-					$(el).css({
+					$td.css({
 						"background-size" : "cover",
 						"background-image" : "url(../" + event.extendedProps.imageurl + ")"
 					});
 
-					$(el).closest("td").attr("data-toggle", "modal").attr("data-target", "#readModal");
-					$(el).closest("td").append('<input type="hidden" id="picpath" value= "'+event.extendedProps.imageurl+'">');
+					$td.attr("data-toggle", "modal").attr("data-target", "#readModal");
+					$td.append('<input type="hidden" id="picpath" value= "'+event.extendedProps.imageurl+'">');
 				}
 			}
 		});
@@ -163,8 +163,8 @@
 		$('#readModal').on('show.bs.modal', function(event) {
 
 			var postdate = $(".fc-highlight").closest("td").attr("data-date");
-			var pic = "../" + $(".fc-highlight").closest("td").find("#picpath").val();
 			var tags;
+			var pic;
 			$.ajax({
 				url : url + "/" + postdate,
 				contentType : "JSON",
@@ -172,7 +172,7 @@
 				async : false,
 				success : function(response) {
 					tags = response["tags"];
-					console.log(tags);
+					pic = "../" + response["pic"];
 				}
 			});
 
@@ -193,7 +193,6 @@
 			$('#input-tag').val('');
 			$('#added-tags').empty();
 			$('#post').text("Post");
-			$('#delete-tags').val('');
 		});
 
 		$('#addtag').on('click', function(e) {
@@ -205,8 +204,6 @@
 		});
 
 		$('#added-tags').on('click', function(e) {
-			var tag = $(e.target).text();
-			$('#delete-tags').append('<input type = "hidden" value="' + tag.substring(1, tag.length - 2) + '">')
 			$(e.target).remove();
 		});
 
@@ -244,8 +241,6 @@
 
 				data.append("upload", upload);
 
-				console.log(upload);
-
 				data.append("tags", tags)
 
 				$.ajax({
@@ -259,16 +254,18 @@
 						res = 1;
 					},
 					error : function(request, status, error) {
-						alert($('#post').text() + "error");
+						alert($('#post').text() + " Error");
 					}
 				});
 
 			} else {
-				alert("must put image");
+				alert("Must Put Image!!");
 			}
-
 			if (res == 1) {
-				window.location.reload();
+				setTimeout(function() {
+					window.location.reload();
+				}, 500);
+
 			}
 		});
 
@@ -280,6 +277,47 @@
 
 		$("#upload").change(function() {
 			readURL(this);
+		});
+
+		$("#deletea").on('click', function() {
+			var postdate = $('#readModal .modal-title').text();
+			var url = location.pathname.replace("calendar", "post");
+			console.log(url)
+			$.ajax({
+				url : url + "/" + postdate,
+				type : "DELETE",
+				success : function() {
+					window.location.reload();
+				},
+				error : function(request, status, error) {
+					alert("delete error");
+				}
+			});
+		});
+
+		$("#updatea").on('click', function() {
+			$('#readModal').modal("hide");
+
+			var postdate = $('#readModal .modal-title').text();
+			var url = location.pathname.replace("calendar/", "");
+			var pic = $('#readModal #pic').attr("src");
+			var tags = $('#tags').text().split("#");
+
+			$('#postModal').modal("show");
+
+			$('#postModal .modal-title').text(postdate);
+			$('#preview').attr("src", pic);
+			$('#post').text("Update");
+			for (var i = 1; i < tags.length; i++) {
+				$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tags[i] + ' x</button>')
+			}
+		});
+
+		$('#input-tag').keypress(function(event) {
+			if (event.which == 13) {
+				$('#addtag').click();
+				return false;
+			}
 		});
 	});
 
@@ -296,54 +334,6 @@
 			}
 			reader.readAsDataURL(input.files[0]);
 		}
-	}
-
-	function deletePost() {
-		var postdate = $('#readModal .modal-title').text();
-		var url = location.pathname.replace("calendar/", "");
-		$.ajax({
-			url : url + "/" + postdate,
-			type : "DELETE",
-			success : function() {
-				window.location.reload();
-			},
-			error : function(request, status, error) {
-				alert("delete error");
-			}
-		});
-	}
-
-	function updatePost() {
-
-		$('#readModal').modal("hide");
-
-		var postdate = $('#readModal .modal-title').text();
-		var url = location.pathname.replace("calendar/", "");
-		var pic = $('#readModal #pic').attr("src");
-		var tags = $('#tags').text().split("#");
-
-		$('#postModal').modal("show");
-
-		$('#postModal .modal-title').text(postdate);
-		$('#preview').attr("src", pic);
-		$('#post').text("Update");
-		for (var i = 1; i < tags.length; i++) {
-			$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tags[i] + ' x</button>')
-		}
-	}
-
-	function formDate(date) {
-		date = FullCalendar.formatDate(date, {
-			month : '2-digit',
-			year : 'numeric',
-			day : '2-digit',
-			locale : "kr"
-		});
-		date = date.replace(/ /g, "");
-		date = date.replace(/\./g, "-");
-		date = date.substring(0, 10);
-
-		return date;
 	}
 </script>
 

@@ -4,7 +4,7 @@
 <footer class="sticky-footer bg-white">
 	<div class="container my-auto">
 		<div class="copyright text-center my-auto">
-			<span>Copyright &copy; Your Website 2020</span>
+			<span>Copyright &copy; Wallendar 2020</span>
 		</div>
 	</div>
 </footer>
@@ -36,6 +36,7 @@
 </div>
 
 
+<script src='../fullcalendar/lib/main.js' charset="utf-8"></script>
 <!-- Bootstrap core JavaScript-->
 <!-- <script src="resources/static/vendor/jquery/jquery.min.js"></script> -->
 <script src="/theme/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -51,7 +52,8 @@
 <script src="/theme/vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
 <!-- Page level custom scripts -->
-<!-- <script src="resources/static/js/demo/datatables-demo.js"></script> -->
+
+<script src="/jquery-ui/jquery-ui.js"></script>
 
 <script>
 	$(document).ready(function() {
@@ -63,11 +65,41 @@
 		$('#search-btn').on('click', function(e) {
 			console.log($('#search').val());
 			if ($('#search').val().length > 0) {
-				document.location.href = "/wall/" + $('#search').val();
+				document.location.href = "/search/" + $('#search').val();
 			}
 
 		});
+
+		$('#search').keypress(function(event) {
+			if (event.which == 13) {
+				$('#search-btn').click();
+				return false;
+			}
+		});
+		
+		$('#calbtn').on('click',function(){
+			window.location.href = "/calendar/" + $('#logged-on-user').text();
+		});
+		
+		$('#wallbtn').on('click',function(){
+			var date = formDate(new Date());
+			window.location.href = "/wall/" + date;
+		});
 	});
+
+	function formDate(date) {
+		date = FullCalendar.formatDate(date, {
+			month : '2-digit',
+			year : 'numeric',
+			day : '2-digit',
+			locale : "kr"
+		});
+		date = date.replace(/ /g, "");
+		date = date.replace(/\./g, "-");
+		date = date.substring(0, 10);
+
+		return date;
+	}
 </script>
 </body>
 </html>

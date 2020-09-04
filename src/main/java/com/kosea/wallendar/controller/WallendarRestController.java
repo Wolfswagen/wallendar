@@ -3,7 +3,6 @@ package com.kosea.wallendar.controller;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,7 @@ import com.kosea.wallendar.service.WallendarService;
 
 @RestController
 @RequestMapping("/post")
-public class CalendarRestController {
+public class WallendarRestController {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -39,10 +38,8 @@ public class CalendarRestController {
 
 	DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
-	@GetMapping(value = "{tag}", produces = { MediaType.APPLICATION_JSON_VALUE })
+	@GetMapping(value = "/{tag}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Map<String, Object>> searchTag(@PathVariable("tag") String tag) {
-
-		logger.info(tag);
 
 		List<PostVo> userPost = service.findAll(tag);
 
@@ -55,6 +52,15 @@ public class CalendarRestController {
 		posts.put("tagpost", tagPost);
 
 		return new ResponseEntity<Map<String, Object>>(posts, HttpStatus.OK);
+
+	}
+
+	@GetMapping(value = "/date/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<List<PostVo>> searchPostdate(@PathVariable("postdate") String postdate) throws Exception {
+
+		List<PostVo> posts = service.SearchByPostDate(df.parse(postdate));
+
+		return new ResponseEntity<List<PostVo>>(posts, HttpStatus.OK);
 	}
 
 	@GetMapping(value = "/{usertag}/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })

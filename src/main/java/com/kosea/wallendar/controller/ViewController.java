@@ -5,14 +5,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class ViewController {
-	
+
 	@RequestMapping("/calendar/{usertag}")
 	public String calendarView() {
 		return "calendar";
 	}
-	
-	
-	@RequestMapping("/wall/{keyword}")
+
+	@RequestMapping("/search/{keyword}")
+	public String searchView() {
+		return "search";
+	}
+
+	@RequestMapping("/wall/{postdate}")
 	public String wallView() {
 		return "wall";
 	}
