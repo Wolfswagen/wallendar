@@ -7,20 +7,25 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.kosea.wallendar.domain.PkPost;
 import com.kosea.wallendar.domain.PostVo;
 import com.kosea.wallendar.repository.PostRepository;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class WallendarService {
 
+	@NonNull
+	private final PostRepository postRepository;
+	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private PostRepository postRepository;
+	
 
 	public PostVo savePost(PostVo post) {
 		postRepository.save(post);

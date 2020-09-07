@@ -8,8 +8,14 @@
 
 <script charset="utf-8">
 	$(document).ready(function() {
+
+		if (!sessionStorage.getItem("loginuser")) {
+			window.location.href = "/";
+		}
+
 		var url = location.pathname.replace("wall", "post/date");
 		var date = url.replace("/post/date/", "");
+		s
 
 		var result;
 
@@ -32,12 +38,13 @@
 		}
 
 		for (var i = 0; i < result.length; i++) {
-			$('#dateposts').append('<div class="modal-dialog modal-xl" role="document">' + '<div class="modal-content">' + '<div class="modal-header">' + '<h5 class="modal-title">' + formDate(result[i]["postdate"]) + '</h5></div>' + '<div class="modal-body">' + '<h5 class="input-group-prepend">@' + result[i]["usertag"] + '</h5>' + '<div class="text-center">' + '<img class="img-fluid" src="../'+result[i]["pic"]+'"></div>' + '<div class="p-5"><h5>Tags</h5>' + '<p class="form-control-plaintext text-left">' + result[i]["tags"].substring(0, result[i]["tags"].length-1) + '</p>' + '</div></div></div></div>');
+			$('#dateposts').append('<div class="modal-dialog modal-xl" role="document">' + '<div class="modal-content">' + '<div class="modal-header">' + '<h5 class="modal-title">' + formDate(result[i]["postdate"]) + '</h5></div>' + '<div class="modal-body">' + '<h5 class="input-group-prepend">@' + result[i]["usertag"] + '</h5>' + '<div class="text-center">' + '<img class="img-fluid" src="../'+result[i]["pic"]+'"></div>' + '<div class="p-5"><h5>Tags</h5>' + '<p class="form-control-plaintext text-left">' + result[i]["tags"].substring(0, result[i]["tags"].length - 1) + '</p>' + '</div></div></div></div>');
 		}
 
-		$("#seldate").on('change', function() {
-			window.location.href = $("#seldate").val();
-		});
+	});
+
+	$("#seldate").on('change', function() {
+		window.location.href = $("#seldate").val();
 	});
 </script>
 <%@include file="../includes/footer.jsp"%>

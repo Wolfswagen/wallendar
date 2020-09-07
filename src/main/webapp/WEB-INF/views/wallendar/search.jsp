@@ -1,5 +1,5 @@
 <%@include file="../includes/header.jsp"%>
-<h2>WALL</h2>
+<h2>SEARCH....</h2>
 
 <div class="pl-5">
 	<h5>User</h5>
@@ -44,6 +44,11 @@
 
 <script charset="utf-8">
 	$(document).ready(function() {
+		
+		if (!sessionStorage.getItem("loginuser")) {
+			window.location.href = "/";
+		}
+		
 		var url = location.pathname.replace("search", "post");
 		var userpost;
 		var tagpost;
@@ -71,33 +76,34 @@
 			$('#tagrow').append('<img class = "mb-3 col rounded" usertag = "' + tagpost[i]["usertag"] + '" postdate = "' + formDate(tagpost[i]["postdate"]) + '" style="width:100%; background:url(../' + tagpost[i]["pic"] + ') no-repeat center center; background-size:cover; " src = /image/thumbnail.png>');
 		}
 
-		$('.rounded').on('click', function(event) {
+	});
 
-			var postdate = $(event.target).attr("postdate").substring(0, 10);
-			var usertag = $(event.target).attr("usertag");
-			console.log("/post/" + usertag + "/" + postdate);
-			var tags;
-			var pic;
+	$('.rounded').on('click', function(event) {
 
-			$.ajax({
-				url : "/post/" + usertag + "/" + postdate,
-				contentType : "JSON",
-				type : "GET",
-				async : false,
-				success : function(response) {
-					console.log(response);
-					tags = response["tags"];
-					pic = "../" + response["pic"];
-				}
-			});
+		var postdate = $(event.target).attr("postdate").substring(0, 10);
+		var usertag = $(event.target).attr("usertag");
+		console.log("/post/" + usertag + "/" + postdate);
+		var tags;
+		var pic;
 
-			tags = tags.substring(0, tags.length - 1);
-			$('#readModal .modal-title').text(postdate);
-			$('#readModal #user-tag').text("@" + usertag);
-			$('#pic').attr("src", pic);
-			$('#tags').text(tags);
-			$('#readModal').modal("show");
+		$.ajax({
+			url : "/post/" + usertag + "/" + postdate,
+			contentType : "JSON",
+			type : "GET",
+			async : false,
+			success : function(response) {
+				console.log(response);
+				tags = response["tags"];
+				pic = "../" + response["pic"];
+			}
 		});
+
+		tags = tags.substring(0, tags.length - 1);
+		$('#readModal .modal-title').text(postdate);
+		$('#readModal #user-tag').text("@" + usertag);
+		$('#pic').attr("src", pic);
+		$('#tags').text(tags);
+		$('#readModal').modal("show");
 	});
 </script>
 <%@include file="../includes/footer.jsp"%>

@@ -10,7 +10,6 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,14 +26,18 @@ import org.springframework.web.multipart.MultipartFile;
 import com.kosea.wallendar.domain.PostVo;
 import com.kosea.wallendar.service.WallendarService;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/post")
+@RequiredArgsConstructor
 public class WallendarRestController {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	WallendarService service;
+	@NonNull
+	private final WallendarService service;
 
 	DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 

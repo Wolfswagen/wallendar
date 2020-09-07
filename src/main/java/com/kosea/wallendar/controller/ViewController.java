@@ -21,4 +21,14 @@ public class ViewController {
 		return "wall";
 	}
 
+	@RequestMapping()
+	public String loginView() {
+		return "login";
+	}
+
+	@RequestMapping("/register")
+	public String registerView() {
+		return "register";
+	}
+
 }

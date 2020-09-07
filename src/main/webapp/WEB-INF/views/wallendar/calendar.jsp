@@ -97,13 +97,17 @@
 
 
 <script charset="utf-8">
+	var url = location.pathname.replace("calendar", "post");
+	var usertag = url.replace("/post/", "");
 	document.addEventListener('DOMContentLoaded', function() {
-		var calendarEl = document.getElementById('calendar');
-		var url = location.pathname.replace("calendar", "post");
-
-		var usertag = url.replace("/post/", "");
 		
-		if(usertag != $('#logged-on-user').text()){
+		if (!sessionStorage.getItem("loginuser")) {
+			window.location.href = "/";
+		}
+		
+		var calendarEl = document.getElementById('calendar');
+
+		if (usertag != sessionStorage.getItem("loginuser")) {
 			$('#udmenu').hide();
 		}
 
@@ -159,166 +163,165 @@
 			$(".fc-day-today").attr("data-toggle", "modal");
 			$(".fc-day-today").attr("data-target", "#postModal");
 		}
-		/* modal */
-		$('#readModal').on('show.bs.modal', function(event) {
 
-			var postdate = $(".fc-highlight").closest("td").attr("data-date");
-			var tags;
-			var pic;
+	});
+
+	/* modal */
+	$('#readModal').on('show.bs.modal', function(event) {
+
+		var postdate = $(".fc-highlight").closest("td").attr("data-date");
+		var tags;
+		var pic;
+		$.ajax({
+			url : url + "/" + postdate,
+			contentType : "JSON",
+			type : "GET",
+			async : false,
+			success : function(response) {
+				tags = response["tags"];
+				pic = "../" + response["pic"];
+			}
+		});
+
+		tags = tags.substring(0, tags.length - 1);
+		$('#readModal .modal-title').text(postdate);
+		$('#readModal #user-tag').text("@" + usertag);
+		$('#pic').attr("src", pic);
+		$('#tags').text(tags);
+	});
+
+	$('#postModal').on('show.bs.modal', function(event) {
+		var postdate = $(".fc-highlight").closest("td").attr("data-date");
+		$('#postModal .modal-title').text(postdate);
+		$('#upload').empty();
+		$('#preview').attr("src", "");
+		$('#uploadlabel').text("Choose File");
+		$('#postModal #user-tag').text("@" + usertag);
+		$('#input-tag').val('');
+		$('#added-tags').empty();
+		$('#post').text("Post");
+	});
+
+	$('#addtag').on('click', function(e) {
+		var tag = $('#input-tag').val().replace(/ /gi, "");
+		if (tag.length > 0) {
+			$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tag + ' x</button>')
+		}
+		$('#input-tag').val("");
+	});
+
+	$('#added-tags').on('click', function(e) {
+		$(e.target).remove();
+	});
+
+	$("#post").on("click", function(e) {
+		var method = "POST"
+
+		if ($('#post').text() == "Update") {
+			method = "PUT"
+		}
+
+		var res = 0;
+
+		if ($("#upload")[0].files.length > 0 || method == "PUT") {
+
+			var data = new FormData();
+
+			var tags = "";
+
+			var btns = $('#added-tags .btn');
+
+			for (var i = 0; i < btns.length; i++) {
+				var tag = $(btns[i]).text().replace(" x", '');
+				tags = tags + tag;
+			}
+
+			tags = tags + "#";
+
+			var postdate = $("#postModal .modal-title").text();
+
+			var upload = "";
+
+			if ($("#upload")[0].files[0] != undefined) {
+				upload = $("#upload")[0].files[0];
+			}
+
+			data.append("upload", upload);
+
+			data.append("tags", tags)
+
 			$.ajax({
 				url : url + "/" + postdate,
-				contentType : "JSON",
-				type : "GET",
+				processData : false,
+				contentType : false,
 				async : false,
-				success : function(response) {
-					tags = response["tags"];
-					pic = "../" + response["pic"];
-				}
-			});
-
-			tags = tags.substring(0, tags.length - 1);
-			$('#readModal .modal-title').text(postdate);
-			$('#readModal #user-tag').text("@" + usertag);
-			$('#pic').attr("src", pic);
-			$('#tags').text(tags);
-		});
-
-		$('#postModal').on('show.bs.modal', function(event) {
-			var postdate = $(".fc-highlight").closest("td").attr("data-date");
-			$('#postModal .modal-title').text(postdate);
-			$('#upload').empty();
-			$('#preview').attr("src", "");
-			$('#uploadlabel').text("Choose File");
-			$('#postModal #user-tag').text("@" + usertag);
-			$('#input-tag').val('');
-			$('#added-tags').empty();
-			$('#post').text("Post");
-		});
-
-		$('#addtag').on('click', function(e) {
-			var tag = $('#input-tag').val().replace(/ /gi, "");
-			if (tag.length > 0) {
-				$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tag + ' x</button>')
-			}
-			$('#input-tag').val("");
-		});
-
-		$('#added-tags').on('click', function(e) {
-			$(e.target).remove();
-		});
-
-		$("#post").on("click", function(e) {
-			var method = "POST"
-
-			if ($('#post').text() == "Update") {
-				method = "PUT"
-			}
-
-			var res = 0;
-
-			if ($("#upload")[0].files.length > 0 || method == "PUT") {
-
-				var data = new FormData();
-
-				var tags = "";
-
-				var btns = $('#added-tags .btn');
-
-				for (var i = 0; i < btns.length; i++) {
-					var tag = $(btns[i]).text().replace(" x", '');
-					tags = tags + tag;
-				}
-
-				tags = tags + "#";
-
-				var postdate = $("#postModal .modal-title").text();
-
-				var upload = "";
-
-				if ($("#upload")[0].files[0] != undefined) {
-					upload = $("#upload")[0].files[0];
-				}
-
-				data.append("upload", upload);
-
-				data.append("tags", tags)
-
-				$.ajax({
-					url : url + "/" + postdate,
-					processData : false,
-					contentType : false,
-					async : false,
-					data : data,
-					type : method,
-					success : function(result) {
-						res = 1;
-					},
-					error : function(request, status, error) {
-						alert($('#post').text() + " Error");
-					}
-				});
-
-			} else {
-				alert("Must Put Image!!");
-			}
-			if (res == 1) {
-				setTimeout(function() {
-					window.location.reload();
-				}, 500);
-
-			}
-		});
-
-		$('body').on('hidden.bs.modal', function() {
-			if ($('.modal:visible').length > 0) {
-				$('body').addClass('modal-open');
-			}
-		});
-
-		$("#upload").change(function() {
-			readURL(this);
-		});
-
-		$("#deletea").on('click', function() {
-			var postdate = $('#readModal .modal-title').text();
-			var url = location.pathname.replace("calendar", "post");
-			console.log(url)
-			$.ajax({
-				url : url + "/" + postdate,
-				type : "DELETE",
-				success : function() {
-					window.location.reload();
+				data : data,
+				type : method,
+				success : function(result) {
+					res = 1;
 				},
 				error : function(request, status, error) {
-					alert("delete error");
+					alert($('#post').text() + " Error");
 				}
 			});
-		});
 
-		$("#updatea").on('click', function() {
-			$('#readModal').modal("hide");
+		} else {
+			alert("Must Put Image!!");
+		}
+		if (res == 1) {
+			setTimeout(function() {
+				window.location.reload();
+			}, 500);
+		}
+	});
 
-			var postdate = $('#readModal .modal-title').text();
-			var url = location.pathname.replace("calendar/", "");
-			var pic = $('#readModal #pic').attr("src");
-			var tags = $('#tags').text().split("#");
+	$('body').on('hidden.bs.modal', function() {
+		if ($('.modal:visible').length > 0) {
+			$('body').addClass('modal-open');
+		}
+	});
 
-			$('#postModal').modal("show");
+	$("#upload").change(function() {
+		readURL(this);
+	});
 
-			$('#postModal .modal-title').text(postdate);
-			$('#preview').attr("src", pic);
-			$('#post').text("Update");
-			for (var i = 1; i < tags.length; i++) {
-				$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tags[i] + ' x</button>')
+	$("#deletea").on('click', function() {
+		var postdate = $('#readModal .modal-title').text();
+		console.log(url)
+		$.ajax({
+			url : url + "/" + postdate,
+			type : "DELETE",
+			success : function() {
+				window.location.reload();
+			},
+			error : function(request, status, error) {
+				alert("delete error");
 			}
 		});
+	});
 
-		$('#input-tag').keypress(function(event) {
-			if (event.which == 13) {
-				$('#addtag').click();
-				return false;
-			}
-		});
+	$("#updatea").on('click', function() {
+		$('#readModal').modal("hide");
+
+		var postdate = $('#readModal .modal-title').text();
+		var pic = $('#readModal #pic').attr("src");
+		var tags = $('#tags').text().split("#");
+
+		$('#postModal').modal("show");
+
+		$('#postModal .modal-title').text(postdate);
+		$('#preview').attr("src", pic);
+		$('#post').text("Update");
+		for (var i = 1; i < tags.length; i++) {
+			$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tags[i] + ' x</button>')
+		}
+	});
+
+	$('#input-tag').keypress(function(event) {
+		if (event.which == 13) {
+			$('#addtag').click();
+			return false;
+		}
 	});
 
 	function readURL(input) {

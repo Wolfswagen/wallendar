@@ -22,4 +22,5 @@ public class UserVo {
 	private String password;
 	private String username;
 	private String usertag;
+	private String salt;
 }
