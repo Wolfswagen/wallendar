@@ -14,41 +14,14 @@
 	</div>
 </div>
 
-<div class="modal fade" id="readModal" role="dialog">
-	<div class="modal-dialog modal-xl" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="readModalLabel">Wallendar</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<h5 class="input-group-prepend" id="user-tag"></h5>
-				<div class="text-center">
-					<img class="img-fluid" id="pic">
-				</div>
-
-				<div class="p-5">
-					<h5>Tags</h5>
-					<p class="form-control-plaintext text-left" id="tags"></p>
-				</div>
-
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-			</div>
-		</div>
-	</div>
-</div>
 
 <script charset="utf-8">
 	$(document).ready(function() {
-		
+
 		if (!sessionStorage.getItem("loginuser")) {
 			window.location.href = "/";
 		}
-		
+
 		var url = location.pathname.replace("search", "post");
 		var userpost;
 		var tagpost;
@@ -76,34 +49,14 @@
 			$('#tagrow').append('<img class = "mb-3 col rounded" usertag = "' + tagpost[i]["usertag"] + '" postdate = "' + formDate(tagpost[i]["postdate"]) + '" style="width:100%; background:url(../' + tagpost[i]["pic"] + ') no-repeat center center; background-size:cover; " src = /image/thumbnail.png>');
 		}
 
-	});
-
-	$('.rounded').on('click', function(event) {
-
-		var postdate = $(event.target).attr("postdate").substring(0, 10);
-		var usertag = $(event.target).attr("usertag");
-		console.log("/post/" + usertag + "/" + postdate);
-		var tags;
-		var pic;
-
-		$.ajax({
-			url : "/post/" + usertag + "/" + postdate,
-			contentType : "JSON",
-			type : "GET",
-			async : false,
-			success : function(response) {
-				console.log(response);
-				tags = response["tags"];
-				pic = "../" + response["pic"];
-			}
+		$('.rounded').on('click', function(event) {
+			
+			var postdate = $(event.target).attr("postdate").substring(0, 10);
+			var usertag = $(event.target).attr("usertag");
+			setReadModal(usertag, postdate);
+			$('#readModal').modal("show");
 		});
 
-		tags = tags.substring(0, tags.length - 1);
-		$('#readModal .modal-title').text(postdate);
-		$('#readModal #user-tag').text("@" + usertag);
-		$('#pic').attr("src", pic);
-		$('#tags').text(tags);
-		$('#readModal').modal("show");
 	});
 </script>
 <%@include file="../includes/footer.jsp"%>

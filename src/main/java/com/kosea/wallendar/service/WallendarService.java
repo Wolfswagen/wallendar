@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 
 import com.kosea.wallendar.domain.PkPost;
 import com.kosea.wallendar.domain.PostVo;
+import com.kosea.wallendar.domain.ReplyVo;
 import com.kosea.wallendar.repository.PostRepository;
+import com.kosea.wallendar.repository.ReplyRepository;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -22,15 +24,22 @@ public class WallendarService {
 
 	@NonNull
 	private final PostRepository postRepository;
-	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	
+	@NonNull
+	private final ReplyRepository replyRepository;
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public PostVo savePost(PostVo post) {
 		postRepository.save(post);
 
 		return post;
+	}
+
+	public ReplyVo saveComment(ReplyVo comment) {
+		replyRepository.save(comment);
+
+		return comment;
 	}
 
 	public List<PostVo> findAll(String usertag) {
@@ -95,4 +104,9 @@ public class WallendarService {
 		postRepository.deleteById(pk);
 	}
 
+	public void deleteComment(int rno) {
+
+		replyRepository.deleteById(rno);
+
+	}
 }

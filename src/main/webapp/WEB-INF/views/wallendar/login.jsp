@@ -32,7 +32,7 @@
 											class="custom-control-label" for="customCheck">Remember Me</label>
 									</div> -->
 								</div>
-								<button class="btn btn-secondary btn-user btn-block" id="loginbtn"> Login </button>
+								<button class="btn btn-secondary btn-user btn-block" id="loginbtn">Login</button>
 								<hr>
 							</form>
 							<!-- <div class="text-center">
@@ -54,7 +54,8 @@
 		if (sessionStorage.getItem("loginuser")) {
 			window.location.href = "/calendar/" + sessionStorage.getItem("loginuser");
 		}
-	})
+	});
+
 	$('#loginbtn').on('click', function() {
 		var data = new Object();
 		data.email = $('#inputEmail').val();
@@ -66,11 +67,10 @@
 			contentType : "application/json",
 			data : JSON.stringify(data),
 			type : "POST",
+			async : false,
 			success : function(result) {
 				if (result.usertag) {
-
 					sessionStorage.setItem("loginuser", result.usertag);
-					console.log(sessionStorage.getItem("loginuser") + "/" + result.usertag);
 					window.location.href = "/calendar/" + result.usertag;
 				} else {
 					alert("Invalid Email or Password");

@@ -2,6 +2,7 @@ package com.kosea.wallendar.controller;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
@@ -18,12 +19,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.kosea.wallendar.domain.PostVo;
+import com.kosea.wallendar.domain.ReplyVo;
 import com.kosea.wallendar.service.WallendarService;
 
 import lombok.NonNull;
@@ -166,6 +169,28 @@ public class WallendarRestController {
 	public ResponseEntity<Void> deletePost(@PathVariable("usertag") String usertag,
 			@PathVariable("postdate") String postdate) throws Exception {
 		service.deletePost(usertag, df.parse(postdate));
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+	}
+
+//	comments
+
+	@PostMapping(value = "/comment", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<Void> addComments(@RequestBody ReplyVo reply) throws Exception {
+
+		String postdate = df.format(reply.getPostdate());
+
+		reply.setPostdate(df.parse(postdate));
+
+		service.saveComment(reply);
+
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+	}
+
+	@DeleteMapping(value = "/comment/{rno}", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<Void> deleteComment(@PathVariable("rno") int rno) throws Exception {
+
+		service.deleteComment(rno);
+
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 

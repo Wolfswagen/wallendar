@@ -3,42 +3,6 @@
 
 <div id='calendar'></div>
 <!--calendar  -->
-<!-- read modal -->
-<div class="modal fade" id="readModal" role="dialog">
-	<div class="modal-dialog modal-xl" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="readModalLabel">Wallendar</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<h5 class="input-group-prepend" id="user-tag"></h5>
-				<div class="text-center">
-					<img class="img-fluid" id="pic">
-				</div>
-				<div class="dropdown float-right" id="udmenu">
-					<button class="btn btn-secondary dropdown-toggle btn-sm" type="button" id="dropdownMenuButton"
-						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-						<a class="dropdown-item" id="deletea">Delete</a> <a class="dropdown-item" id="updatea">Update</a>
-					</div>
-				</div>
-
-				<div class="p-5">
-					<h5>Tags</h5>
-					<p class="form-control-plaintext text-left" id="tags"></p>
-				</div>
-
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- read modal end -->
 
 <div class="modal fade" id="postModal" role="dialog">
 	<div class="modal-dialog  modal-xl" role="document">
@@ -97,19 +61,16 @@
 
 
 <script charset="utf-8">
-	var url = location.pathname.replace("calendar", "post");
-	var usertag = url.replace("/post/", "");
 	document.addEventListener('DOMContentLoaded', function() {
-		
+
+		var url = location.pathname.replace("calendar", "post");
+		var usertag = url.replace("/post/", "");
+
 		if (!sessionStorage.getItem("loginuser")) {
 			window.location.href = "/";
 		}
-		
-		var calendarEl = document.getElementById('calendar');
 
-		if (usertag != sessionStorage.getItem("loginuser")) {
-			$('#udmenu').hide();
-		}
+		var calendarEl = document.getElementById('calendar');
 
 		var result;
 		$.ajax({
@@ -159,185 +120,153 @@
 		calendar.render();
 		/* calendar rendered */
 
-		if ($(".fc-day-today").attr("data-toggle") == undefined) {
+		if ($(".fc-day-today").attr("data-toggle") == undefined && usertag == sessionStorage.getItem("loginuser")) {
 			$(".fc-day-today").attr("data-toggle", "modal");
 			$(".fc-day-today").attr("data-target", "#postModal");
 		}
 
-	});
+		$('#readModal').on('show.bs.modal', function(event) {
 
-	/* modal */
-	$('#readModal').on('show.bs.modal', function(event) {
-
-		var postdate = $(".fc-highlight").closest("td").attr("data-date");
-		var tags;
-		var pic;
-		$.ajax({
-			url : url + "/" + postdate,
-			contentType : "JSON",
-			type : "GET",
-			async : false,
-			success : function(response) {
-				tags = response["tags"];
-				pic = "../" + response["pic"];
+			var postdate = $(".fc-highlight").closest("td").attr("data-date");
+			setReadModal(usertag, postdate);
+			if (usertag == sessionStorage.getItem("loginuser")) {
+				$('#udmenu').show();
 			}
 		});
 
-		tags = tags.substring(0, tags.length - 1);
-		$('#readModal .modal-title').text(postdate);
-		$('#readModal #user-tag').text("@" + usertag);
-		$('#pic').attr("src", pic);
-		$('#tags').text(tags);
-	});
+		/* modal */
 
-	$('#postModal').on('show.bs.modal', function(event) {
-		var postdate = $(".fc-highlight").closest("td").attr("data-date");
-		$('#postModal .modal-title').text(postdate);
-		$('#upload').empty();
-		$('#preview').attr("src", "");
-		$('#uploadlabel').text("Choose File");
-		$('#postModal #user-tag').text("@" + usertag);
-		$('#input-tag').val('');
-		$('#added-tags').empty();
-		$('#post').text("Post");
-	});
+		$('#postModal').on('show.bs.modal', function(event) {
+			var postdate = $(".fc-highlight").closest("td").attr("data-date");
+			$('#postModal .modal-title').text(postdate);
+			$('#upload').empty();
+			$('#preview').attr("src", "");
+			$('#uploadlabel').text("Choose File");
+			$('#postModal #user-tag').text("@" + usertag);
+			$('#input-tag').val('');
+			$('#added-tags').empty();
+			$('#post').text("Post");
+		});
 
-	$('#addtag').on('click', function(e) {
-		var tag = $('#input-tag').val().replace(/ /gi, "");
-		if (tag.length > 0) {
-			$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tag + ' x</button>')
-		}
-		$('#input-tag').val("");
-	});
+		$('#addtag').on('click', function(e) {
 
-	$('#added-tags').on('click', function(e) {
-		$(e.target).remove();
-	});
+			var tag = $('#input-tag').val().replace(/ /gi, "");
+			if (tag.length > 0) {
+				$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tag + ' x</button>')
+			}
+			$('#input-tag').val("");
+		});
 
-	$("#post").on("click", function(e) {
-		var method = "POST"
+		$('#added-tags').on('click', function(e) {
+			$(e.target).remove();
+		});
 
-		if ($('#post').text() == "Update") {
-			method = "PUT"
-		}
+		$("#post").on("click", function(e) {
+			var method = "POST"
 
-		var res = 0;
-
-		if ($("#upload")[0].files.length > 0 || method == "PUT") {
-
-			var data = new FormData();
-
-			var tags = "";
-
-			var btns = $('#added-tags .btn');
-
-			for (var i = 0; i < btns.length; i++) {
-				var tag = $(btns[i]).text().replace(" x", '');
-				tags = tags + tag;
+			if ($('#post').text() == "Update") {
+				method = "PUT"
 			}
 
-			tags = tags + "#";
+			if ($("#upload")[0].files.length > 0 || method == "PUT") {
 
-			var postdate = $("#postModal .modal-title").text();
+				var data = new FormData();
 
-			var upload = "";
+				var tags = "";
 
-			if ($("#upload")[0].files[0] != undefined) {
-				upload = $("#upload")[0].files[0];
-			}
+				var btns = $('#added-tags .btn');
 
-			data.append("upload", upload);
-
-			data.append("tags", tags)
-
-			$.ajax({
-				url : url + "/" + postdate,
-				processData : false,
-				contentType : false,
-				async : false,
-				data : data,
-				type : method,
-				success : function(result) {
-					res = 1;
-				},
-				error : function(request, status, error) {
-					alert($('#post').text() + " Error");
+				for (var i = 0; i < btns.length; i++) {
+					var tag = $(btns[i]).text().replace(" x", '');
+					tags = tags + tag;
 				}
-			});
 
-		} else {
-			alert("Must Put Image!!");
-		}
-		if (res == 1) {
-			setTimeout(function() {
-				window.location.reload();
-			}, 500);
-		}
-	});
+				tags = tags + "#";
 
-	$('body').on('hidden.bs.modal', function() {
-		if ($('.modal:visible').length > 0) {
-			$('body').addClass('modal-open');
-		}
-	});
+				var postdate = $("#postModal .modal-title").text();
 
-	$("#upload").change(function() {
-		readURL(this);
-	});
+				var upload = "";
 
-	$("#deletea").on('click', function() {
-		var postdate = $('#readModal .modal-title').text();
-		console.log(url)
-		$.ajax({
-			url : url + "/" + postdate,
-			type : "DELETE",
-			success : function() {
-				window.location.reload();
-			},
-			error : function(request, status, error) {
-				alert("delete error");
+				if ($("#upload")[0].files[0] != undefined) {
+					upload = $("#upload")[0].files[0];
+				}
+
+				data.append("upload", upload);
+
+				data.append("tags", tags)
+
+				$.ajax({
+					url : url + "/" + postdate,
+					processData : false,
+					contentType : false,
+					data : data,
+					type : method,
+					success : function(result) {
+						setTimeout(function() {
+							window.location.reload();
+						}, 1000);
+					},
+					error : function(request, status, error) {
+						alert($('#post').text() + " Error");
+					}
+				});
+
+			} else {
+				alert("Must Put Image!!");
 			}
 		});
-	});
 
-	$("#updatea").on('click', function() {
-		$('#readModal').modal("hide");
+		$("#upload").change(function() {
+			readURL(this);
+		});
 
-		var postdate = $('#readModal .modal-title').text();
-		var pic = $('#readModal #pic').attr("src");
-		var tags = $('#tags').text().split("#");
+		$("#deletea").on('click', function() {
 
-		$('#postModal').modal("show");
+			$('#deleteModal .modal-title').text("Delete Post");
+			$('#deleteModal').modal("show");
 
-		$('#postModal .modal-title').text(postdate);
-		$('#preview').attr("src", pic);
-		$('#post').text("Update");
-		for (var i = 1; i < tags.length; i++) {
-			$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tags[i] + ' x</button>')
-		}
-	});
+		});
 
-	$('#input-tag').keypress(function(event) {
-		if (event.which == 13) {
-			$('#addtag').click();
-			return false;
-		}
-	});
+		$("#updatea").on('click', function() {
+			$('#readModal').modal("hide");
 
-	function readURL(input) {
-		$('#preview').attr('src', '');
-		$('.custom-file-label').text('Choose File');
-		if (input.files && input.files[0]) {
+			var postdate = $('#readModal .modal-title').text();
+			var pic = $('#readModal #pic').attr("src");
+			var tags = $('#tags').text().split("#");
 
-			var name = input.files[0].name;
-			var reader = new FileReader();
-			reader.onload = function(e) {
-				$('#preview').attr('src', e.target.result);
-				$('.custom-file-label').text(name);
+			$('#postModal').modal("show");
+
+			$('#postModal .modal-title').text(postdate);
+			$('#preview').attr("src", pic);
+			$('#post').text("Update");
+			for (var i = 1; i < tags.length; i++) {
+				$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tags[i] + ' x</button>')
 			}
-			reader.readAsDataURL(input.files[0]);
+		});
+
+		$('#input-tag').keypress(function(event) {
+			if (event.which == 13) {
+				$('#addtag').click();
+				return false;
+			}
+		});
+
+		function readURL(input) {
+			$('#preview').attr('src', '');
+			$('.custom-file-label').text('Choose File');
+			if (input.files && input.files[0]) {
+
+				var name = input.files[0].name;
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					$('#preview').attr('src', e.target.result);
+					$('.custom-file-label').text(name);
+				}
+				reader.readAsDataURL(input.files[0]);
+			}
 		}
-	}
+
+	});
 </script>
 
 <%@include file="../includes/footer.jsp"%>
