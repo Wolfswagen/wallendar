@@ -1,10 +1,14 @@
 package com.kosea.wallendar.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.kosea.wallendar.domain.FollowVo;
 import com.kosea.wallendar.domain.UserVo;
+import com.kosea.wallendar.repository.FollowRepository;
 import com.kosea.wallendar.repository.UserRepository;
 import com.kosea.wallendar.utilities.SHA256Util;
 
@@ -17,6 +21,9 @@ public class UserService {
 
 	@NonNull
 	private final UserRepository userRepository;
+
+	@NonNull
+	private final FollowRepository followRepository;
 
 	public void registerUser(UserVo user) {
 
@@ -46,6 +53,43 @@ public class UserService {
 
 			return login;
 		}
+	}
+
+	public Optional<UserVo> getUsertag(String usertag) {
+
+		Optional<UserVo> user = userRepository.findByUsertag(usertag);
+
+		return user;
+	}
+
+	public List<FollowVo> findFollowings(String usertag) {
+
+		List<FollowVo> followings = new ArrayList<FollowVo>();
+
+		followRepository.findByUsertag(usertag).forEach(e -> followings.add(e));
+
+		return followings;
+	}
+
+	public List<FollowVo> findFollowers(String follow) {
+
+		List<FollowVo> followers = new ArrayList<FollowVo>();
+
+		followRepository.findByFollow(follow).forEach(e -> followers.add(e));
+
+		return followers;
+	}
+
+	public void followUser(FollowVo follow) {
+
+		followRepository.save(follow);
+
+	}
+
+	public void unFollowUser(String usertag, String follow) {
+
+		followRepository.deleteByUsertagAndFollow(usertag, follow);
+
 	}
 
 }

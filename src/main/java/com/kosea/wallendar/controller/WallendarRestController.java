@@ -25,9 +25,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.kosea.wallendar.domain.LikeVo;
 import com.kosea.wallendar.domain.PostVo;
 import com.kosea.wallendar.domain.ReplyVo;
-import com.kosea.wallendar.service.WallendarService;
+import com.kosea.wallendar.domain.UserVo;
+import com.kosea.wallendar.service.UserService;
+import com.kosea.wallendar.service.PostService;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -40,18 +43,29 @@ public class WallendarRestController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@NonNull
-	private final WallendarService service;
+	private final PostService postService;
+
+	@NonNull
+	private final UserService userService;
 
 	DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
 	@GetMapping(value = "/{tag}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Map<String, Object>> searchTag(@PathVariable("tag") String tag) {
 
-		List<PostVo> userPost = service.findAll(tag);
+		Optional<UserVo> user = userService.getUsertag(tag);
 
-		List<PostVo> tagPost = service.searchByTag(tag);
+		List<PostVo> userPost = postService.findAll(tag);
+
+		List<PostVo> tagPost = postService.searchByTag(tag);
 
 		Map<String, Object> posts = new HashMap<String, Object>();
+
+		if (user.isPresent()) {
+			posts.put("usertag", user.get().getUsertag());
+		} else {
+			posts.put("usertag", "");
+		}
 
 		posts.put("userpost", userPost);
 
@@ -64,7 +78,7 @@ public class WallendarRestController {
 	@GetMapping(value = "/date/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<List<PostVo>> searchPostdate(@PathVariable("postdate") String postdate) throws Exception {
 
-		List<PostVo> posts = service.SearchByPostDate(df.parse(postdate));
+		List<PostVo> posts = postService.SearchByPostDate(df.parse(postdate));
 
 		return new ResponseEntity<List<PostVo>>(posts, HttpStatus.OK);
 	}
@@ -73,7 +87,7 @@ public class WallendarRestController {
 	public ResponseEntity<PostVo> getOnePost(@PathVariable("usertag") String usertag,
 			@PathVariable("postdate") String postdate) throws Exception {
 
-		Optional<PostVo> post = service.findOne(usertag, df.parse(postdate));
+		Optional<PostVo> post = postService.findOne(usertag, df.parse(postdate));
 
 		if (post.isPresent()) {
 			return new ResponseEntity<PostVo>(post.get(), HttpStatus.OK);
@@ -117,7 +131,7 @@ public class WallendarRestController {
 		String picPath = "upload/" + usertag + "/" + pic;
 
 		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).pic(picPath).tags(tags).build();
-		service.savePost(post);
+		postService.savePost(post);
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
@@ -160,7 +174,7 @@ public class WallendarRestController {
 			post.setPic(picPath);
 		}
 
-		service.updateById(usertag, df.parse(postdate), post);
+		postService.updateById(usertag, df.parse(postdate), post);
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
@@ -168,7 +182,7 @@ public class WallendarRestController {
 	@DeleteMapping(value = "/{usertag}/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> deletePost(@PathVariable("usertag") String usertag,
 			@PathVariable("postdate") String postdate) throws Exception {
-		service.deletePost(usertag, df.parse(postdate));
+		postService.deletePost(usertag, df.parse(postdate));
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -181,7 +195,7 @@ public class WallendarRestController {
 
 		reply.setPostdate(df.parse(postdate));
 
-		service.saveComment(reply);
+		postService.saveComment(reply);
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
@@ -189,9 +203,32 @@ public class WallendarRestController {
 	@DeleteMapping(value = "/comment/{rno}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> deleteComment(@PathVariable("rno") int rno) throws Exception {
 
-		service.deleteComment(rno);
+		postService.deleteComment(rno);
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
+//	likes
+
+	@PostMapping(value = "/like", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<Void> addLike(@RequestBody LikeVo like) throws Exception {
+
+		String postdate = df.format(like.getPostdate());
+
+		like.setPostdate(df.parse(postdate));
+
+		postService.likePost(like);
+
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+
+	}
+
+	@DeleteMapping(value = "/like/{lno}", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<Void> addDelete(@PathVariable("lno") int lno) {
+
+		postService.unlikePost(lno);
+
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+
+	}
 }

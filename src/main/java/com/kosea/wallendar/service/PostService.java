@@ -5,22 +5,24 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.kosea.wallendar.domain.LikeVo;
 import com.kosea.wallendar.domain.PkPost;
 import com.kosea.wallendar.domain.PostVo;
 import com.kosea.wallendar.domain.ReplyVo;
+import com.kosea.wallendar.repository.LikeRepository;
 import com.kosea.wallendar.repository.PostRepository;
 import com.kosea.wallendar.repository.ReplyRepository;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-public class WallendarService {
+@Slf4j
+public class PostService {
 
 	@NonNull
 	private final PostRepository postRepository;
@@ -28,12 +30,21 @@ public class WallendarService {
 	@NonNull
 	private final ReplyRepository replyRepository;
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	@NonNull
+	private final LikeRepository likeRepository;
 
 	public PostVo savePost(PostVo post) {
 		postRepository.save(post);
 
 		return post;
+	}
+
+	public void likePost(LikeVo like) {
+		likeRepository.save(like);
+	}
+
+	public void unlikePost(int lno) {
+		likeRepository.deleteById(lno);
 	}
 
 	public ReplyVo saveComment(ReplyVo comment) {
@@ -48,15 +59,11 @@ public class WallendarService {
 
 		postRepository.findByUsertag(usertag).forEach(e -> posts.add(e));
 
-		logger.info(posts.toString());
-
 		return posts;
 
 	}
 
 	public Optional<PostVo> findOne(String usertag, Date postdate) {
-
-		logger.info("ONE");
 
 		PkPost pk = PkPost.builder().usertag(usertag).postdate(postdate).build();
 
@@ -107,6 +114,6 @@ public class WallendarService {
 	public void deleteComment(int rno) {
 
 		replyRepository.deleteById(rno);
-
 	}
+
 }

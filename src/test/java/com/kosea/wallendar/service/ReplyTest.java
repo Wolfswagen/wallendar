@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +18,7 @@ import com.kosea.wallendar.repository.PostRepository;
 import com.kosea.wallendar.repository.ReplyRepository;
 
 @SpringBootTest
+@Transactional
 public class ReplyTest {
 
 	@Autowired
@@ -29,7 +32,7 @@ public class ReplyTest {
 	@Test
 	public void run() throws Exception {
 
-		String usertag = "testreg";
+		String usertag = "test";
 		Date postdate = df.parse("2020-09-08");
 		PostVo post = PostVo.builder().usertag(usertag).postdate(postdate).tags("test").pic("test").build();
 

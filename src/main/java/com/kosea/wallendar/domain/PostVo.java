@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -29,7 +28,6 @@ import lombok.NoArgsConstructor;
 public class PostVo {
 
 	@Id
-	@Column(name = "usertag")
 	private String usertag;
 	@Id
 	private Date postdate;
@@ -38,7 +36,7 @@ public class PostVo {
 
 	private String tags;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumns({ @JoinColumn(name = "usertag", referencedColumnName = "usertag"),
 			@JoinColumn(name = "postdate", referencedColumnName = "postdate") })
 	private List<ReplyVo> reply;
@@ -48,5 +46,17 @@ public class PostVo {
 			reply = new ArrayList<ReplyVo>();
 		}
 		reply.add(r);
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumns({ @JoinColumn(name = "usertag", referencedColumnName = "usertag"),
+			@JoinColumn(name = "postdate", referencedColumnName = "postdate") })
+	private List<LikeVo> likes;
+
+	public void addLike(LikeVo l) {
+		if (likes == null) {
+			likes = new ArrayList<LikeVo>();
+		}
+		likes.add(l);
 	}
 }

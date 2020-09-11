@@ -11,7 +11,9 @@ import com.kosea.wallendar.domain.UserVo;
 public interface UserRepository extends JpaRepository<UserVo, String> {
 
 	public Optional<UserVo> findByEmail(String email);
-	
+
 	public Optional<UserVo> findByEmailAndPassword(String email, String password);
+
+	public Optional<UserVo> findByUsertag(String usertag);
 
 }

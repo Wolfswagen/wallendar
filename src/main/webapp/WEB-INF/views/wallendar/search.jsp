@@ -3,7 +3,7 @@
 
 <div class="pl-5">
 	<h5>User</h5>
-	<div class="ml-2" id="userpost">No Result</div>
+	<div class="ml-2" id="usertag">No Result</div>
 </div>
 <hr>
 <div class="pl-5">
@@ -23,7 +23,7 @@
 		}
 
 		var url = location.pathname.replace("search", "post");
-		var userpost;
+		var usertag;
 		var tagpost;
 
 		$.ajax({
@@ -32,13 +32,13 @@
 			type : "GET",
 			async : false,
 			success : function(response) {
-				userpost = response["userpost"];
+				usertag = response["usertag"];
 				tagpost = response["tagpost"];
 			}
 		});
 
-		if (userpost.length > 0) {
-			$('#userpost').text('').append('<a href="/calendar/'+userpost[0]["usertag"]+'">@' + userpost[0]["usertag"] + '</a>');
+		if (usertag.length > 0) {
+			$('#usertag').text('').append('<a href="/calendar/'+usertag+'">@' + usertag + '</a>');
 		}
 
 		if (tagpost.length > 0) {
@@ -50,7 +50,7 @@
 		}
 
 		$('.rounded').on('click', function(event) {
-			
+
 			var postdate = $(event.target).attr("postdate").substring(0, 10);
 			var usertag = $(event.target).attr("usertag");
 			setReadModal(usertag, postdate);

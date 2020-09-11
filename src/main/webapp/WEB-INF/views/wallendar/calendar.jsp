@@ -1,9 +1,26 @@
 <%@include file="../includes/header.jsp"%>
 <link href='../fullcalendar/lib/main.css' rel='stylesheet' />
 
+<div class="card bg-dark text-white">
+	<img src="/image/profileback.png" class="card-img w-100">
+	<div class="card-img-overlay">
+		<h1 class="card-title font-weight-bolder">
+			<span id="usertag"></span>
+			<button id="followinfo" class="btn btn-sm btn-light" data-toggle="modal"
+				data-target="#followModal">
+				Follower : <span id="followernum"></span> / Following : <span id="followingnum"></span>
+			</button>
+		</h1>
+
+
+	</div>
+</div>
+<hr>
+
 <div id='calendar'></div>
 <!--calendar  -->
 
+<!-- post modal -->
 <div class="modal fade" id="postModal" role="dialog">
 	<div class="modal-dialog  modal-xl" role="document">
 		<div class="modal-content">
@@ -55,22 +72,60 @@
 		</div>
 	</div>
 </div>
-
 <!-- post modal -->
+
+<!-- follow modal -->
+<div class="modal fade" id="followModal" role="dialog">
+	<div class="modal-dialog  " role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="followModalLabel">@Usertag</h4>
+				<button id="followbtn" class="btn btn-sm btn-link">+Follow</button>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+
+				<div class="container mb-3">
+					<div class="row">
+						<div class="col text-center font-weight-bold">Follower</div>
+						<div class="col text-center font-weight-bold">Following</div>
+					</div>
+					<hr>
+					<div class="row">
+						<div class="col text-center">
+							<div class="row row-cols-1 text-center" id="follower"></div>
+						</div>
+
+						<div class="col text-center">
+							<div class="row row-cols-1 text-center" id="following"></div>
+						</div>
+					</div>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- follow modal -->
 
 
 
 <script charset="utf-8">
 	document.addEventListener('DOMContentLoaded', function() {
 
-		var url = location.pathname.replace("calendar", "post");
-		var usertag = url.replace("/post/", "");
-
 		if (!sessionStorage.getItem("loginuser")) {
 			window.location.href = "/";
 		}
 
-		var calendarEl = document.getElementById('calendar');
+		var url = location.pathname.replace("calendar", "post");
+		var usertag = url.replace("/post/", "");
+
+		$('#usertag').text("@" + usertag);
 
 		var result;
 		$.ajax({
@@ -82,6 +137,8 @@
 				result = response["userpost"]
 			}
 		});
+
+		var calendarEl = document.getElementById('calendar');
 
 		var events = new Array();
 
@@ -135,6 +192,50 @@
 		});
 
 		/* modal */
+
+		/* follow modal */
+
+		var follower;
+		var following;
+
+		$.ajax({
+			url : "/user/follow/" + usertag,
+			contentType : "JSON",
+			type : "GET",
+			async : false,
+			success : function(response) {
+				follower = response.follower;
+				following = response.following;
+				$('#followernum').text(follower.length);
+				$('#followingnum').text(following.length);
+			}
+		});
+
+		if (usertag == sessionStorage.getItem("loginuser")) {
+			$('#followbtn').hide();
+		}
+
+		if (follower.length == 0) {
+			$('#follower').append('<div class="col mx-2">No Follower</div>');
+		}
+
+		for (var i = 0; i < follower.length; i++) {
+			$('#follower').append('<div class="col mx-2"> <a href="/calendar/'+follower[i].usertag+'">@' + follower[i].usertag + '</a></div>');
+			if (follower[i].usertag == sessionStorage.getItem("loginuser")) {
+				$('#followbtn').text("Unfollow");
+			}
+		}
+
+		if (following.length == 0) {
+			$('#following').append('<div class="col mx-2">No Follower</div>');
+		}
+		for (var i = 0; i < following.length; i++) {
+			$('#following').append('<div class="col mx-2"><a href="/calendar/'+following[i].follow+'">@' + following[i].follow + '</a></div>');
+		}
+
+		$('#followModal .modal-title').text("@" + usertag);
+
+		/* follow modal */
 
 		$('#postModal').on('show.bs.modal', function(event) {
 			var postdate = $(".fc-highlight").closest("td").attr("data-date");
@@ -249,6 +350,38 @@
 				$('#addtag').click();
 				return false;
 			}
+		});
+		$('#followbtn').on('click', function() {
+			var method;
+			if ($('#followbtn').text() == '+Follow') {
+				method = "POST"
+			} else {
+				method = "DELETE"
+			}
+
+			console.log(method);
+			var data = new Object();
+
+			data.usertag = sessionStorage.getItem("loginuser");
+
+			data.follow = usertag;
+
+			console.log(data);
+
+			$.ajax({
+				url : "/user/follow/",
+				contentType : "application/json",
+				data : JSON.stringify(data),
+				type : method,
+				success : function(result) {
+					console.log(result);
+					window.location.reload(); 
+				},
+				error : function(request, status, error) {
+					console.log("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+				}
+			});
+
 		});
 
 		function readURL(input) {

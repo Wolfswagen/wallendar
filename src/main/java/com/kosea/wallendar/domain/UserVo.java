@@ -1,7 +1,7 @@
 package com.kosea.wallendar.domain;
 
-
 import javax.persistence.Entity;
+
 import javax.persistence.Id;
 
 import lombok.AccessLevel;
@@ -16,11 +16,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "user_tbl")
 public class UserVo {
-
 	@Id
 	private String email;
 	private String password;
 	private String username;
 	private String usertag;
 	private String salt;
+
 }

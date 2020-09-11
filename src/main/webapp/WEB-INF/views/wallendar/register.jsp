@@ -11,7 +11,7 @@
 						<div class="text-center">
 							<h1 class="h4 text-gray-900 mb-4">Create an Account!</h1>
 						</div>
-						<form class="user">
+						<div class="user">
 							<div class="form-group">
 								<input type="email" class="form-control form-control-user" id="registerEmail"
 									placeholder="Email Address">
@@ -40,7 +40,7 @@
 							<button class="btn btn-primary btn-user btn-block" id="registerbtn">Register
 								Account</button>
 							<hr>
-						</form>
+						</div>
 
 						<!-- <div class="text-center">
 							<a class="small" href="forgot-password.html">Forgot Password?</a>
@@ -57,7 +57,8 @@
 </div>
 
 <script>
-	$('#registerbtn').on('click', function() {
+ 	$('#registerbtn').on('click', function() {
+		
 
 		if ($('#registerPassword').val() == $('#repeatPassword').val()) {
 			var user = new Object();
