@@ -46,14 +46,15 @@
 		}
 
 		for (var i = 0; i < tagpost.length; i++) {
-			$('#tagrow').append('<img class = "mb-3 col rounded" usertag = "' + tagpost[i]["usertag"] + '" postdate = "' + formDate(tagpost[i]["postdate"]) + '" style="width:100%; background:url(../' + tagpost[i]["pic"] + ') no-repeat center center; background-size:cover; " src = /image/thumbnail.png>');
+			$('#tagrow').append('<img class="mb-3 col rounded" id = "thumbnail' + i + '" style="width:100%; background:url(../' + tagpost[i]["pic"] + ') no-repeat center center; background-size:cover; " src = /image/thumbnail.png>');
+			$('#thumbnail' + i).attr("data-post", JSON.stringify(tagpost[i]));
 		}
 
 		$('.rounded').on('click', function(event) {
 
-			var postdate = $(event.target).attr("postdate").substring(0, 10);
-			var usertag = $(event.target).attr("usertag");
-			setReadModal(usertag, postdate);
+			var post = JSON.parse($(event.target).attr("data-post"))
+
+			setReadModal(post);
 			$('#readModal').modal("show");
 		});
 

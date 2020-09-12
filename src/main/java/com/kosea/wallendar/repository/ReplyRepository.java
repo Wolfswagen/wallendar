@@ -8,6 +8,5 @@ import com.kosea.wallendar.domain.ReplyVo;
 
 @Repository
 public interface ReplyRepository extends JpaRepository<ReplyVo, Integer> {
-
 	
 }

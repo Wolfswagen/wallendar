@@ -72,11 +72,25 @@ public class UserRestController {
 
 	@PostMapping(value = "/register", produces = { MediaType.APPLICATION_JSON_VALUE }, consumes = {
 			MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Void> addUser(@RequestBody UserVo user) {
+	public ResponseEntity<Map<String, Object>> addUser(@RequestBody UserVo user) {
 
-		userService.registerUser(user);
+		Optional<UserVo> email = userService.findByEmail(user.getEmail());
 
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		Optional<UserVo> usertag = userService.findByUsertag(user.getUsertag());
+
+		Map<String, Object> userCheck = new HashMap<String, Object>();
+
+		if (email.isPresent()) {
+			userCheck.put("email", true);
+		} else if (usertag.isPresent()) {
+			userCheck.put("usertag", true);
+		} else {
+			userService.registerUser(user);
+		}
+
+		System.out.println(userCheck);
+
+		return new ResponseEntity<Map<String, Object>>(userCheck, HttpStatus.OK);
 	}
 
 	@PostMapping(value = "/login", produces = { MediaType.APPLICATION_JSON_VALUE })

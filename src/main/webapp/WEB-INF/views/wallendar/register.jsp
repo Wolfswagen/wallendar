@@ -57,9 +57,7 @@
 </div>
 
 <script>
- 	$('#registerbtn').on('click', function() {
-		
-
+	$('#registerbtn').on('click', function() {
 		if ($('#registerPassword').val() == $('#repeatPassword').val()) {
 			var user = new Object();
 			user.email = $('#registerEmail').val();
@@ -68,24 +66,60 @@
 			user.usertag = $('#registerTag').val();
 			user.salt = null;
 
-			$.ajax({
-				url : "/user/register",
-				contentType : "application/json",
-				data : JSON.stringify(user),
-				type : "POST",
-				success : function(result) {
-					alert("Register success");
-					window.location.href = "/";
-				},
-				error : function(request, status, error) {
-					console.log("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
-				}
-			});
+			if (checkRegister(user)) {
+				$.ajax({
+					url : "/user/register",
+					contentType : "application/json",
+					data : JSON.stringify(user),
+					type : "POST",
+					success : function(result) {
+						console.log(result);
+						if (result.email) {
+							alert("Email Already Exists");
+						} else if (result.usertag) {
+							alert("Usertag Already Exists");
+						} else {
+							alert("Register success");
+							window.location.href = "/";
+						}
+					},
+					error : function(request, status, error) {
+						console.log("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+					}
+				});
+			}
 		} else {
-			alert("Check Password");
+			alert("Please Check Password");
 		}
 
 	});
+
+	function checkRegister(userInfo) {
+		var reg_email = /^([0-9a-zA-Z_\.-]+)@([0-9a-zA-Z_-]+)(\.[0-9a-zA-Z_-]+){1,2}$/;
+
+		console.log(userInfo);
+
+		if (!reg_email.test(userInfo.email) || !userInfo.email) {
+			alert("Please Check email");
+			return false;
+		} else if (!userInfo.username) {
+			alert("Please Check Username");
+			return false;
+		} else if (!userInfo.usertag) {
+			alert("Please Check Usertag");
+			return false;
+		} else if (!userInfo.password) {
+			alert("Please Check Password");
+			return false;
+		} else if (userInfo.password.length < 8) {
+			console.log(userInfo.password.length);
+			alert("Password is Too Short");
+			return false;
+		} else {
+			return true;
+		}
+
+	}
 </script>
 
 <%@include file="../includes/footer.jsp"%>

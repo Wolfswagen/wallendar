@@ -12,6 +12,7 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -37,6 +38,7 @@ public class PostVo {
 	private String tags;
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OrderBy("rno")
 	@JoinColumns({ @JoinColumn(name = "usertag", referencedColumnName = "usertag"),
 			@JoinColumn(name = "postdate", referencedColumnName = "postdate") })
 	private List<ReplyVo> reply;
@@ -49,6 +51,7 @@ public class PostVo {
 	}
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OrderBy("lno")
 	@JoinColumns({ @JoinColumn(name = "usertag", referencedColumnName = "usertag"),
 			@JoinColumn(name = "postdate", referencedColumnName = "postdate") })
 	private List<LikeVo> likes;

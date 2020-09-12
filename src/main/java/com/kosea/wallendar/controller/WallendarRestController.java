@@ -53,7 +53,7 @@ public class WallendarRestController {
 	@GetMapping(value = "/{tag}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Map<String, Object>> searchTag(@PathVariable("tag") String tag) {
 
-		Optional<UserVo> user = userService.getUsertag(tag);
+		Optional<UserVo> user = userService.findByUsertag(tag);
 
 		List<PostVo> userPost = postService.findAll(tag);
 

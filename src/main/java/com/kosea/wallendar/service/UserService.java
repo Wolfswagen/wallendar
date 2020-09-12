@@ -55,9 +55,16 @@ public class UserService {
 		}
 	}
 
-	public Optional<UserVo> getUsertag(String usertag) {
+	public Optional<UserVo> findByUsertag(String usertag) {
 
 		Optional<UserVo> user = userRepository.findByUsertag(usertag);
+
+		return user;
+	}
+
+	public Optional<UserVo> findByEmail(String email) {
+
+		Optional<UserVo> user = userRepository.findByEmail(email);
 
 		return user;
 	}

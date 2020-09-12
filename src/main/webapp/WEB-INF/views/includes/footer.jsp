@@ -168,7 +168,23 @@
 	});
 
 	$('#search-btn').on('click', function(e) {
+
 		if ($('#search').val().length > 0) {
+			document.location.href = "/search/" + $('#search').val();
+		}
+
+	});
+
+	$('#search-xs').keypress(function(event) {
+		if (event.which == 13) {
+			$('#search-btn-xs').click();
+			return false;
+		}
+	});
+
+	$('#search-btn-xs').on('click', function(e) {
+
+		if ($('#search-xs').val().length > 0) {
 			document.location.href = "/search/" + $('#search').val();
 		}
 
@@ -216,43 +232,30 @@
 		});
 	});
 
-	function setReadModal(usertag, postdate) {
+	function setReadModal(post) {
 
 		$('#udmenu').hide();
 
-		var tags;
-		var comments;
-		var pic;
-		var likes;
-
-		$.ajax({
-			url : "/post/" + usertag + "/" + postdate,
-			contentType : "JSON",
-			type : "GET",
-			async : false,
-			success : function(response) {
-				likes = response["likes"];
-				comments = response["reply"];
-				tags = response["tags"];
-				pic = "../" + response["pic"];
-			}
-		});
-
-		tags = tags.substring(0, tags.length - 1);
+		var likes = post.likes;
+		var comments = post.reply;
+		var tags = post.tags.substr(0, post.tags.length - 1).split("#");
 
 		$('#likedusers span').text(likes.length);
-
 		$('#likebtn').show();
 		$('#unlikebtn').hide();
-		$('#readModal .modal-title').text(postdate);
-		$('#readModal #user-tag').text("@" + usertag);
-		$('#pic').attr("src", pic);
-		$('#tags').text(tags);
+		$('#readModal .modal-title').text(post.postdate.substring(0, 10));
+		$('#readModal #user-tag').append('<a class="text-secondary" href="/calendar/'+post.usertag+'">@' + post.usertag);
+		$('#pic').attr("src", "../" + post.pic);
+		$('#tags').text("");
 		$('#readModal #comments *').remove();
 		$('#readModal #likes *').remove();
 
+		for (var i = 1; i < tags.length; i++) {
+			$('#tags').append('<a class="text-secondary" href="/search/'+tags[i]+'">#' + tags[i] + '</a>');
+		}
+
 		for (var i = 0; i < likes.length; i++) {
-			$('#likes').append('<div><a href="'+likes[i].likeuser+'">@' + likes[i].likeduser + '</a></div>');
+			$('#likes').append('<div><a class="text-secondary" href="/calendar/'+likes[i].likeuser+'">@' + likes[i].likeduser + '</a></div>');
 			if (likes[i].likeduser == sessionStorage.getItem("loginuser")) {
 				$('#likebtn').toggle();
 				$('#unlikebtn').toggle();
@@ -278,8 +281,6 @@
 		data.usertag = $('#readModal #user-tag').text().substring(1);
 		data.postdate = $('#readModal .modal-title').text();
 		data.likeduser = sessionStorage.getItem("loginuser");
-
-		console.log(data);
 
 		$.ajax({
 			url : "/post/like/",

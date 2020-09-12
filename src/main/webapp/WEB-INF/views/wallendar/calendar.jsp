@@ -2,7 +2,7 @@
 <link href='../fullcalendar/lib/main.css' rel='stylesheet' />
 
 <div class="card bg-dark text-white">
-	<img src="/image/profileback.png" class="card-img w-100">
+	<img src="/image/profileback.png" class="card-img " style="min-height: 100px">
 	<div class="card-img-overlay">
 		<h1 class="card-title font-weight-bolder">
 			<span id="usertag"></span>
@@ -10,6 +10,8 @@
 				data-target="#followModal">
 				Follower : <span id="followernum"></span> / Following : <span id="followingnum"></span>
 			</button>
+
+			<button id="followbtn" class="btn btn-sm btn-light">+Follow</button>
 		</h1>
 
 
@@ -80,7 +82,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h4 class="modal-title" id="followModalLabel">@Usertag</h4>
-				<button id="followbtn" class="btn btn-sm btn-link">+Follow</button>
+
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -128,6 +130,7 @@
 		$('#usertag').text("@" + usertag);
 
 		var result;
+
 		$.ajax({
 			url : url,
 			contentType : "JSON",
@@ -146,7 +149,7 @@
 			var data = new Object();
 			var postdate = formDate(result[i]["postdate"]);
 			data.start = postdate;
-			data.imageurl = result[i]["pic"];
+			data.post = result[i];
 			data.display = "background";
 			data.backgroundColor = "white";
 			events.push(data);
@@ -163,14 +166,17 @@
 
 				let event = info.event;
 				var $td = $(el).closest("td");
-				if (event.extendedProps.imageurl) {
+
+				if (event.extendedProps.post) {
 					$td.css({
 						"background-size" : "cover",
-						"background-image" : "url(../" + event.extendedProps.imageurl + ")"
+						"background-image" : "url(../" + event.extendedProps.post.pic + ")"
 					});
 
+					$td.attr("data-post", JSON.stringify(event.extendedProps.post));
+
 					$td.attr("data-toggle", "modal").attr("data-target", "#readModal");
-					$td.append('<input type="hidden" id="picpath" value= "'+event.extendedProps.imageurl+'">');
+
 				}
 			}
 		});
@@ -184,8 +190,10 @@
 
 		$('#readModal').on('show.bs.modal', function(event) {
 
-			var postdate = $(".fc-highlight").closest("td").attr("data-date");
-			setReadModal(usertag, postdate);
+			var post = JSON.parse($(".fc-highlight").closest("td").attr("data-post"));
+
+			setReadModal(post);
+
 			if (usertag == sessionStorage.getItem("loginuser")) {
 				$('#udmenu').show();
 			}
@@ -318,6 +326,7 @@
 		});
 
 		$("#upload").change(function() {
+
 			readURL(this);
 		});
 
@@ -351,6 +360,7 @@
 				return false;
 			}
 		});
+
 		$('#followbtn').on('click', function() {
 			var method;
 			if ($('#followbtn').text() == '+Follow') {
@@ -359,14 +369,11 @@
 				method = "DELETE"
 			}
 
-			console.log(method);
 			var data = new Object();
 
 			data.usertag = sessionStorage.getItem("loginuser");
 
 			data.follow = usertag;
-
-			console.log(data);
 
 			$.ajax({
 				url : "/user/follow/",
@@ -375,7 +382,7 @@
 				type : method,
 				success : function(result) {
 					console.log(result);
-					window.location.reload(); 
+					window.location.reload();
 				},
 				error : function(request, status, error) {
 					console.log("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
@@ -387,16 +394,20 @@
 		function readURL(input) {
 			$('#preview').attr('src', '');
 			$('.custom-file-label').text('Choose File');
-			if (input.files && input.files[0]) {
-
-				var name = input.files[0].name;
-				var reader = new FileReader();
-				reader.onload = function(e) {
-					$('#preview').attr('src', e.target.result);
-					$('.custom-file-label').text(name);
+			if (/\.(gif|jpg|jpeg|png)$/i.test(input.files[0].name)) {
+				if (input.files && input.files[0]) {
+					var name = input.files[0].name;
+					var reader = new FileReader();
+					reader.onload = function(e) {
+						$('#preview').attr('src', e.target.result);
+						$('.custom-file-label').text(name);
+					}
+					reader.readAsDataURL(input.files[0]);
 				}
-				reader.readAsDataURL(input.files[0]);
+			} else {
+				alert('Please Choose Image File');
 			}
+
 		}
 
 	});
