@@ -16,25 +16,23 @@
 									Welcome TO <br> WALLENDAR!
 								</h1>
 							</div>
-							<form class="user">
-								<div class="form-group">
-									<input type="email" class="form-control form-control-user" id="inputEmail"
-										aria-describedby="emailHelp" placeholder="Enter Email Address...">
-								</div>
-								<div class="form-group">
-									<input type="password" class="form-control form-control-user" id="inputPassword"
-										placeholder="Password">
-								</div>
-								<div class="form-group">
-									<div id="failed"></div>
-									<!-- <div class="custom-control custom-checkbox small">
+							<div class="form-group">
+								<input type="email" class="form-control form-control-user" id="inputEmail"
+									aria-describedby="emailHelp" placeholder="Enter Email Address...">
+							</div>
+							<div class="form-group">
+								<input type="password" class="form-control form-control-user" id="inputPassword"
+									placeholder="Password">
+							</div>
+							<div class="form-group">
+								<div id="failed"></div>
+								<!-- <div class="custom-control custom-checkbox small">
 										<input type="checkbox" class="custom-control-input" id="customCheck"> <label
 											class="custom-control-label" for="customCheck">Remember Me</label>
 									</div> -->
-								</div>
-								<button class="btn btn-secondary btn-user btn-block" id="loginbtn">Login</button>
-								<hr>
-							</form>
+							</div>
+							<button class="btn btn-secondary btn-user btn-block" id="loginbtn">Login</button>
+							<hr>
 							<!-- <div class="text-center">
 								<a class="small" href="forgot-password.html">Forgot Password?</a>
 							</div> -->
@@ -60,7 +58,6 @@
 		var data = new Object();
 		data.email = $('#inputEmail').val();
 		data.password = $('#inputPassword').val();
-		console.log(data);
 
 		$.ajax({
 			url : "/user/login",
@@ -70,7 +67,9 @@
 			async : false,
 			success : function(result) {
 				if (result.usertag) {
+					console.log(result);
 					sessionStorage.setItem("loginuser", result.usertag);
+					sessionStorage.setItem("userimg", result.userimg);
 					window.location.href = "/calendar/" + result.usertag;
 				} else {
 					alert("Invalid Email or Password");
@@ -80,6 +79,13 @@
 				console.log("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
 			}
 		});
+	});
+
+	$('#inputEmail, #inputPassword').keypress(function(event) {
+		if (event.which == 13) {
+			$('#loginbtn').click();
+			return false;
+		}
 	});
 </script>
 

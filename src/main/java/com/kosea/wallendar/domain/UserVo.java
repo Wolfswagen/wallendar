@@ -22,5 +22,6 @@ public class UserVo {
 	private String username;
 	private String usertag;
 	private String salt;
-
+	private String userimg;
+	private String bgimg;
 }

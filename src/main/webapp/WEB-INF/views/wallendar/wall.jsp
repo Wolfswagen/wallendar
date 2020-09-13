@@ -1,7 +1,7 @@
 <%@include file="../includes/header.jsp"%>
-<h2>WALL</h2>
 <div class="text-center" id="userpost">
-	<input type="text" class="text-center border-0 text-secondary" style="font-size: 32px" readonly size="30" id="seldate">
+	<input type="text" class="text-center border-0 text-secondary" style="font-size: 32px" readonly
+		size="30" id="seldate">
 </div>
 <div class="text-center py-3" id="result">
 	<h2>No Result</h2>
@@ -13,6 +13,7 @@
 
 
 <script charset="utf-8">
+	var selected;
 	$(document).ready(function() {
 
 		if (!sessionStorage.getItem("loginuser")) {
@@ -42,15 +43,18 @@
 		}
 
 		for (var i = 0; i < result.length; i++) {
-			$('#resultrow').append('<div class ="p-3 col"> <h4>@'+result[i].usertag+'</h4> <img class="border rounded" id = "thumbnail' + i + '" style="width:100%; max-width:800px; background:url(../' + result[i]["pic"] + ') no-repeat center center; background-size:cover; " src = /image/thumbnail.png><h4>'+result[i].tags.substring(0,result[i].tags.length-1)+'</h4></div>');
+			$('#resultrow').append('<div class ="p-3 col"> <h4>@' + result[i].usertag + '</h4> <img class="border rounded" id = "thumbnail' + i + '" style="width:100%; max-width:700px; background:url(../' + result[i]["pic"] + ') no-repeat center center; background-size:cover; " src = /image/thumbnail.png><h4>' + result[i].tags.substring(0, result[i].tags.length - 1) + '</h4></div>');
 			$('#thumbnail' + i).attr("data-post", JSON.stringify(result[i]));
 		}
 
 		$('.rounded').on('click', function(event) {
 
-			var post = JSON.parse($(event.target).attr("data-post"))
+			selected = $(event.target);
+
+			var post = JSON.parse(selected.attr("data-post"));
 
 			setReadModal(post);
+
 			$('#readModal').modal("show");
 		});
 

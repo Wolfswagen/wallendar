@@ -2,24 +2,29 @@
 <link href='../fullcalendar/lib/main.css' rel='stylesheet' />
 
 <div class="card bg-dark text-white">
-	<img src="/image/profileback.png" class="card-img " style="min-height: 100px">
+	<img src="/image/profileback.png" class="card-img" id="bgimg" style="max-height: 150px;">
 	<div class="card-img-overlay">
-		<h1 class="card-title font-weight-bolder">
-			<span id="usertag"></span>
-			<button id="followinfo" class="btn btn-sm btn-light" data-toggle="modal"
-				data-target="#followModal">
-				Follower : <span id="followernum"></span> / Following : <span id="followingnum"></span>
-			</button>
+		<div>
+			<h1 class="card-title font-weight-bolder">
+				<img class="img-fluid rounded-circle border"
+					style="width: 5%; min-width: 50px; background-color: white; background-size: cover;"
+					src="../image/thumbnail.png" id="userimg"> <span id="usertag"></span>
+				<button id="followinfo" class="btn btn-sm btn-light" data-toggle="modal"
+					data-target="#followModal">
+					Follower : <span id="followernum"></span> / Following : <span id="followingnum"></span>
+				</button>
 
-			<button id="followbtn" class="btn btn-sm btn-light">+Follow</button>
-		</h1>
+				<button id="followbtn" class="btn btn-sm btn-light">+Follow</button>
+			</h1>
+
+		</div>
 
 
 	</div>
 </div>
 <hr>
 
-<div id='calendar'></div>
+<div id='calendar' class="m-auto"></div>
 <!--calendar  -->
 
 <!-- post modal -->
@@ -113,11 +118,48 @@
 		</div>
 	</div>
 </div>
+
+
 <!-- follow modal -->
+
+<!-- bg modal; -->
+<div class="modal fade" id="bgModal" role="dialog">
+	<div class="modal-dialog  modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="postModalLabel">Profile Background</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="text-center p-3">
+					<img class="img-fluid mw-25" id="bgpreview">
+				</div>
+				<div class="input-group p-3" id="bginput" hidden="true">
+					<div class="input-group-prepend">
+						<span class="input-group-text" id="bguploadgroup">Upload</span>
+					</div>
+					<div class="custom-file">
+						<input type="file" class="custom-file-input" id="bgupload" aria-describedby="bguploadgroup">
+						<label class="custom-file-label" for="bgupload" id="bguploadlabel">Choose file</label>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary" id="bgpost" hidden="true">OK</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+
 
 
 
 <script charset="utf-8">
+	var selected;
 	document.addEventListener('DOMContentLoaded', function() {
 
 		if (!sessionStorage.getItem("loginuser")) {
@@ -158,13 +200,16 @@
 		/* calendar init */
 		var calendar = new FullCalendar.Calendar(calendarEl, {
 			initialView : 'dayGridMonth',
+			initialDate : localStorage.getItem("initdate"),
 			selectable : true,
 			eventBorderColor : "white",
 			events : events,
 			eventDidMount : function(info) {
+
 				let el = info.el;
 
 				let event = info.event;
+
 				var $td = $(el).closest("td");
 
 				if (event.extendedProps.post) {
@@ -176,26 +221,64 @@
 					$td.attr("data-post", JSON.stringify(event.extendedProps.post));
 
 					$td.attr("data-toggle", "modal").attr("data-target", "#readModal");
-
 				}
 			}
 		});
 		calendar.render();
-		/* calendar rendered */
+
+		localStorage.clear();
 
 		if ($(".fc-day-today").attr("data-toggle") == undefined && usertag == sessionStorage.getItem("loginuser")) {
-			$(".fc-day-today").attr("data-toggle", "modal");
-			$(".fc-day-today").attr("data-target", "#postModal");
+			$(".fc-day-today").attr("data-toggle", "modal").attr("data-target", "#postModal");
 		}
+		/* calendar rendered */
+
+		var user;
+		$.ajax({
+			url : "/user/" + usertag,
+			contentType : "JSON",
+			type : "GET",
+			async : false,
+			success : function(response) {
+				user = response;
+			}
+		});
+
+		if (user.userimg) {
+			$('#userimg').css({
+				"background-image" : "url(../" + user.userimg + ")"
+			});
+		}
+
+		if (user.bgimg) {
+			$(".card-img-overlay").attr("data-toggle", "modal").attr("data-target", "#bgModal");
+
+			$('#bgpreview').attr("src", "../" + user.bgimg);
+
+			$('#bgimg').css({
+				"background-size" : "cover",
+				"background-image" : "url(../" + user.bgimg + ")"
+			});
+		}
+
+		if (usertag == sessionStorage.getItem("loginuser")) {
+			$(".card-img-overlay").attr("data-toggle", "modal").attr("data-target", "#bgModal");
+			$('#bgpost, #bginput').attr("hidden", false);
+		}
+		/* userprofile */
 
 		$('#readModal').on('show.bs.modal', function(event) {
 
-			var post = JSON.parse($(".fc-highlight").closest("td").attr("data-post"));
+			if ($(".fc-highlight").closest("td").length > 0) {
+				selected = $(".fc-highlight").closest("td");
+			}
+
+			var post = JSON.parse(selected.attr("data-post"));
 
 			setReadModal(post);
 
 			if (usertag == sessionStorage.getItem("loginuser")) {
-				$('#udmenu').show();
+				$('#udmenu').attr("hidden", false);
 			}
 		});
 
@@ -246,7 +329,10 @@
 		/* follow modal */
 
 		$('#postModal').on('show.bs.modal', function(event) {
-			var postdate = $(".fc-highlight").closest("td").attr("data-date");
+			if ($(".fc-highlight").closest("td").length > 0) {
+				selected = $(".fc-highlight").closest("td");
+			}
+			var postdate = selected.attr("data-date");
 			$('#postModal .modal-title').text(postdate);
 			$('#upload').empty();
 			$('#preview').attr("src", "");
@@ -312,7 +398,13 @@
 					type : method,
 					success : function(result) {
 						setTimeout(function() {
-							window.location.reload();
+							regetPost(usertag, postdate);
+							$('#postModal').modal("hide");
+							$('#readModal').modal("show");
+							$('#readModal').on('hide.bs.modal', function() {
+								localStorage.setItem("initdate", postdate);
+								window.location.reload();
+							})
 						}, 1000);
 					},
 					error : function(request, status, error) {
@@ -325,9 +417,44 @@
 			}
 		});
 
-		$("#upload").change(function() {
+		$("#upload, #bgupload").change(function() {
 
 			readURL(this);
+		});
+
+		$("#bgpost").on("click", function(e) {
+
+			if ($("#bgupload")[0].files.length > 0) {
+
+				var data = new FormData();
+
+				var upload = "";
+
+				if ($("#bgupload")[0].files[0] != undefined) {
+					upload = $("#bgupload")[0].files[0];
+				}
+
+				data.append("upload", upload);
+
+				$.ajax({
+					url : "/user/background/" + usertag,
+					processData : false,
+					contentType : false,
+					data : data,
+					type : "PUT",
+					success : function(result) {
+						setTimeout(function() {
+							window.location.reload();
+						}, 1000);
+					},
+					error : function(request, status, error) {
+						alert($('#post').text() + " Error");
+					}
+				});
+
+			} else {
+				alert("Must Put Image!!");
+			}
 		});
 
 		$("#deletea").on('click', function() {
@@ -381,8 +508,8 @@
 				data : JSON.stringify(data),
 				type : method,
 				success : function(result) {
-					console.log(result);
-					window.location.reload();
+					$('#followbtn').text("+Follow");
+					regetFollow();
 				},
 				error : function(request, status, error) {
 					console.log("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
@@ -391,15 +518,55 @@
 
 		});
 
+		function regetFollow() {
+			var follower;
+			var following;
+
+			$.ajax({
+				url : "/user/follow/" + usertag,
+				contentType : "JSON",
+				type : "GET",
+				async : false,
+				success : function(response) {
+					follower = response.follower;
+					following = response.following;
+					$('#followernum').text(follower.length);
+					$('#followingnum').text(following.length);
+				}
+			});
+
+			$('#follower *').remove();
+			$('#following *').remove();
+
+			if (follower.length == 0) {
+				$('#follower').append('<div class="col mx-2">No Follower</div>');
+			}
+
+			for (var i = 0; i < follower.length; i++) {
+				$('#follower').append('<div class="col mx-2"> <a href="/calendar/'+follower[i].usertag+'">@' + follower[i].usertag + '</a></div>');
+				if (follower[i].usertag == sessionStorage.getItem("loginuser")) {
+					$('#followbtn').text("Unfollow");
+				}
+			}
+
+			if (following.length == 0) {
+				$('#following').append('<div class="col mx-2">No Follower</div>');
+			}
+			for (var i = 0; i < following.length; i++) {
+				$('#following').append('<div class="col mx-2"><a href="/calendar/'+following[i].follow+'">@' + following[i].follow + '</a></div>');
+			}
+		}
+
 		function readURL(input) {
 			$('#preview').attr('src', '');
+			$('#bgpreview').attr('src', '');
 			$('.custom-file-label').text('Choose File');
 			if (/\.(gif|jpg|jpeg|png)$/i.test(input.files[0].name)) {
 				if (input.files && input.files[0]) {
 					var name = input.files[0].name;
 					var reader = new FileReader();
 					reader.onload = function(e) {
-						$('#preview').attr('src', e.target.result);
+						$('#bgpreview').attr('src', e.target.result);
 						$('.custom-file-label').text(name);
 					}
 					reader.readAsDataURL(input.files[0]);
@@ -407,7 +574,6 @@
 			} else {
 				alert('Please Choose Image File');
 			}
-
 		}
 
 	});

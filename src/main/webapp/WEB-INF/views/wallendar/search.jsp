@@ -16,6 +16,7 @@
 
 
 <script charset="utf-8">
+	var selected;
 	$(document).ready(function() {
 
 		if (!sessionStorage.getItem("loginuser")) {
@@ -46,18 +47,21 @@
 		}
 
 		for (var i = 0; i < tagpost.length; i++) {
-			$('#tagrow').append('<img class="mb-3 col rounded" id = "thumbnail' + i + '" style="width:100%; background:url(../' + tagpost[i]["pic"] + ') no-repeat center center; background-size:cover; " src = /image/thumbnail.png>');
+			$('#tagrow').append('<img class="mb-3 col rounded" id = "thumbnail' + i + '" style="width:100%; background:url(../' + tagpost[i]["pic"] + ') no-repeat center center; background-size:cover; " src = "../image/thumbnail.png>"');
 			$('#thumbnail' + i).attr("data-post", JSON.stringify(tagpost[i]));
 		}
 
 		$('.rounded').on('click', function(event) {
+			selected = $(event.target);
 
-			var post = JSON.parse($(event.target).attr("data-post"))
+			var post = JSON.parse(selected.attr("data-post"));
 
 			setReadModal(post);
+			
 			$('#readModal').modal("show");
 		});
 
 	});
+	
 </script>
 <%@include file="../includes/footer.jsp"%>

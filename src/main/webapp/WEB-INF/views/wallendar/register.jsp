@@ -11,6 +11,21 @@
 						<div class="text-center">
 							<h1 class="h4 text-gray-900 mb-4">Create an Account!</h1>
 						</div>
+						<div class="text-center p-3">
+							<img class="img-fluid rounded-circle border"
+								style="width: 50%; height: 50%; background-size: cover; background-color: white"
+								src="../image/thumbnail.png" id="preview">
+						</div>
+						<div class="input-group py-3">
+
+							<div class="input-group-prepend">
+								<span class="input-group-text" id="uploadgroup">Profile Image</span>
+							</div>
+							<div class="custom-file">
+								<input type="file" class="custom-file-input" id="upload" aria-describedby="uploadgroup">
+								<label class="custom-file-label" for="upload" id="uploadlabel">Choose File</label>
+							</div>
+						</div>
 						<div class="user">
 							<div class="form-group">
 								<input type="email" class="form-control form-control-user" id="registerEmail"
@@ -28,7 +43,7 @@
 							</div>
 
 							<div class="form-group row">
-								<div class="col-sm-6 mb-3 mb-sm-0">
+								<div class="col-sm-6">
 									<input type="password" class="form-control form-control-user" id="registerPassword"
 										placeholder="Password">
 								</div>
@@ -59,18 +74,26 @@
 <script>
 	$('#registerbtn').on('click', function() {
 		if ($('#registerPassword').val() == $('#repeatPassword').val()) {
-			var user = new Object();
-			user.email = $('#registerEmail').val();
-			user.password = $('#registerPassword').val();
-			user.username = $('#registerName').val();
-			user.usertag = $('#registerTag').val();
-			user.salt = null;
+			var user = new FormData();
+			user.append("email", $('#registerEmail').val());
+			user.append("password", $('#registerPassword').val());
+			user.append("username", $('#registerName').val());
+			user.append("usertag", $('#registerTag').val());
 
-			if (checkRegister(user)) {
+			var upload = "";
+
+			if ($("#upload")[0].files[0]) {
+				upload = $("#upload")[0].files[0];
+			}
+			user.append("upload", upload);
+
+			if (checkRegister()) {
+				console.log("ajax");
 				$.ajax({
 					url : "/user/register",
-					contentType : "application/json",
-					data : JSON.stringify(user),
+					processData : false,
+					contentType : false,
+					data : user,
 					type : "POST",
 					success : function(result) {
 						console.log(result);
@@ -94,31 +117,57 @@
 
 	});
 
-	function checkRegister(userInfo) {
+	function checkRegister() {
+		console.log("check");
 		var reg_email = /^([0-9a-zA-Z_\.-]+)@([0-9a-zA-Z_-]+)(\.[0-9a-zA-Z_-]+){1,2}$/;
 
-		console.log(userInfo);
-
-		if (!reg_email.test(userInfo.email) || !userInfo.email) {
+		if (!reg_email.test($('#registerEmail').val()) || !$('#registerEmail').val()) {
 			alert("Please Check email");
 			return false;
-		} else if (!userInfo.username) {
+		} else if (!$('#registerName').val()) {
 			alert("Please Check Username");
 			return false;
-		} else if (!userInfo.usertag) {
+		} else if (!$('#registerTag').val()) {
 			alert("Please Check Usertag");
 			return false;
-		} else if (!userInfo.password) {
+		} else if (!$('#registerPassword').val()) {
 			alert("Please Check Password");
 			return false;
-		} else if (userInfo.password.length < 8) {
-			console.log(userInfo.password.length);
+		} else if ($('#registerPassword').val().length < 8) {
+			console.log($('#registerPassword').val().length);
 			alert("Password is Too Short");
 			return false;
 		} else {
 			return true;
 		}
 
+	}
+
+	$("#upload").change(function() {
+
+		readURL(this);
+	});
+
+	function readURL(input) {
+		$('#preview').css({
+			"background-image" : "url()"
+		});
+		$('.custom-file-label').text('Choose File');
+		if (/\.(gif|jpg|jpeg|png)$/i.test(input.files[0].name)) {
+			if (input.files && input.files[0]) {
+				var name = input.files[0].name;
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					$('#preview').css({
+						"background-image" : "url(" + e.target.result + ")"
+					});
+					$('.custom-file-label').text(name);
+				}
+				reader.readAsDataURL(input.files[0]);
+			}
+		} else {
+			alert('Please Choose Image File');
+		}
 	}
 </script>
 

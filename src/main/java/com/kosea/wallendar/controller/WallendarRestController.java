@@ -195,7 +195,7 @@ public class WallendarRestController {
 
 		reply.setPostdate(df.parse(postdate));
 
-		postService.saveComment(reply);
+		postService.saveComment(reply); 
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}

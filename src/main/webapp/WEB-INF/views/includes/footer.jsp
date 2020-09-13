@@ -25,7 +25,7 @@
 				<div class="text-center">
 					<img class="img-fluid" id="pic">
 				</div>
-				<div class="dropdown float-right" id="udmenu">
+				<div class="dropdown float-right pt-2" id="udmenu" hidden="true">
 					<button class="btn btn-secondary dropdown-toggle btn-sm" type="button" id="dropdownMenuButton"
 						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
 					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -157,22 +157,20 @@
 <script src="/jquery-ui/jquery-ui.js"></script>
 
 <script>
-	$(document).ready(function() {
-
-		$('#dataTables-example').DataTable({
-			responsive : true
-		});
-
-		$(".sidebar-nav").attr("class", "sidebar-nav navbar-collapse collapse").attr("aria-expanded", "false").attr("style", "height:1px");
-
-	});
+	if (sessionStorage.getItem("loginuser")) {
+		$('#logged-on-user').text(sessionStorage.getItem("loginuser"));
+	} else {
+		$('#userdropdownmenu').hide();
+	}
+	if (sessionStorage.getItem("userimg")) {
+		$('#profileimg').attr("src", "../" + sessionStorage.getItem("userimg"));
+	}
 
 	$('#search-btn').on('click', function(e) {
 
 		if ($('#search').val().length > 0) {
 			document.location.href = "/search/" + $('#search').val();
 		}
-
 	});
 
 	$('#search-xs').keypress(function(event) {
@@ -183,7 +181,6 @@
 	});
 
 	$('#search-btn-xs').on('click', function(e) {
-
 		if ($('#search-xs').val().length > 0) {
 			document.location.href = "/search/" + $('#search').val();
 		}
@@ -208,6 +205,7 @@
 
 	$('#logoutbtn').on('click', function() {
 		sessionStorage.clear();
+		sessionStorage.getItem("loginuser");
 		window.location.href = "/";
 	});
 
@@ -224,7 +222,8 @@
 			data : JSON.stringify(data),
 			type : "POST",
 			success : function(result) {
-				window.location.reload();
+				setReadModal(regetPost(data.usertag, data.postdate));
+				$('#commentinput').val("");
 			},
 			error : function(request, status, error) {
 				console.log("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
@@ -234,8 +233,6 @@
 
 	function setReadModal(post) {
 
-		$('#udmenu').hide();
-
 		var likes = post.likes;
 		var comments = post.reply;
 		var tags = post.tags.substr(0, post.tags.length - 1).split("#");
@@ -243,7 +240,8 @@
 		$('#likedusers span').text(likes.length);
 		$('#likebtn').show();
 		$('#unlikebtn').hide();
-		$('#readModal .modal-title').text(post.postdate.substring(0, 10));
+		$('#readModal .modal-title').text(formDate(post.postdate).substring(0, 10));
+		$('#readModal #user-tag *').remove();
 		$('#readModal #user-tag').append('<a class="text-secondary" href="/calendar/'+post.usertag+'">@' + post.usertag);
 		$('#pic').attr("src", "../" + post.pic);
 		$('#tags').text("");
@@ -255,28 +253,28 @@
 		}
 
 		for (var i = 0; i < likes.length; i++) {
-			$('#likes').append('<div><a class="text-secondary" href="/calendar/'+likes[i].likeuser+'">@' + likes[i].likeduser + '</a></div>');
+			$('#likes').append('<div><a class="text-secondary" href="/calendar/'+likes[i].likeduser+'">@' + likes[i].likeduser + '</a></div>');
 			if (likes[i].likeduser == sessionStorage.getItem("loginuser")) {
-				$('#likebtn').toggle();
-				$('#unlikebtn').toggle();
-				$('#unlikebtn').attr("lno", likes[i].lno);
+				$('#likebtn').hide();
+				$('#unlikebtn').show();
+				$('#unlikebtn').attr("data-lno", likes[i].lno);
 			}
 		}
 
 		for (var i = 0; i < comments.length; i++) {
 			var writer = comments[i]["writer"];
-
-			if (comments[i]["writer"] == sessionStorage.getItem("loginuser")) {
+			if (writer == sessionStorage.getItem("loginuser")) {
 				writer = "x " + writer;
 			} else {
 				writer = "@ " + writer;
 			}
-			$('#readModal #comments').append('<div> <a id="writer" onclick = "commentOnClick(this);" class="font-weight-bolder" rno = "' + comments[i]["rno"] + '">' + writer + '</a> : ' + comments[i]["contents"] + '</div>');
+			$('#readModal #comments').append('<div> <a id="writer" onclick = "commentOnClick(this);" class="font-weight-bolder" data-rno = "' + comments[i]["rno"] + '">' + writer + '</a> : ' + comments[i]["contents"] + '</div>');
 		}
 
 	}
 
 	$('#likebtn').on('click', function() {
+		console.log(selected);
 		var data = new Object();
 		data.usertag = $('#readModal #user-tag').text().substring(1);
 		data.postdate = $('#readModal .modal-title').text();
@@ -288,7 +286,7 @@
 			data : JSON.stringify(data),
 			type : "POST",
 			success : function(result) {
-				window.location.reload();
+				setReadModal(regetPost(data.usertag, data.postdate));
 			},
 			error : function(request, status, error) {
 				console.log("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
@@ -297,12 +295,15 @@
 	});
 
 	$('#unlikebtn').on('click', function() {
-		var lno = $("#unlikebtn").attr("lno");
+		var lno = $("#unlikebtn").attr("data-lno");
+		var usertag = $('#readModal #user-tag').text().substring(1);
+		var postdate = $('#readModal .modal-title').text();
+
 		$.ajax({
 			url : "/post/like/" + lno,
 			type : "DELETE",
 			success : function() {
-				window.location.reload();
+				setReadModal(regetPost(usertag, postdate));
 			},
 			error : function(request, status, error) {
 				alert("unlike error");
@@ -313,7 +314,7 @@
 	function commentOnClick(e) {
 		if ($(e).text().substring(0, 1) == "x") {
 			$('#deleteModal .modal-title').text("Delete Comment");
-			$('#deletebtn').attr("rno", $(e).attr("rno"));
+			$('#deletebtn').attr("data-rno", $(e).attr("data-rno"));
 			$('#deleteModal').modal("show");
 		} else {
 			window.location.href = "/calendar/" + $(e).text().substring(2);
@@ -336,16 +337,16 @@
 
 	$('#deletebtn').on('click', function(e) {
 
-		if ($('#deleteModal .modal-title').text() == "Delete Post") {
+		var postdate = $('#readModal .modal-title').text();
+		var usertag = $('#readModal #user-tag').text().substring(1);
 
-			var postdate = $('#readModal .modal-title').text();
-			var usertag = $('#readModal #user-tag').text().substring(1);
+		if ($('#deleteModal .modal-title').text() == "Delete Post") {
 
 			$.ajax({
 				url : "/post/" + usertag + "/" + postdate,
 				type : "DELETE",
 				success : function() {
-					window.location.reload();
+					location.reload();
 				},
 				error : function(request, status, error) {
 					alert("delete error");
@@ -354,12 +355,13 @@
 		}
 
 		if ($('#deleteModal .modal-title').text() == "Delete Comment") {
-			var rno = $("#deletebtn").attr("rno");
+			var rno = $("#deletebtn").attr("data-rno");
 			$.ajax({
 				url : "/post/comment/" + rno,
 				type : "DELETE",
 				success : function() {
-					window.location.reload();
+					$('#deleteModal').modal("hide");
+					setReadModal(regetPost(usertag, postdate));
 				},
 				error : function(request, status, error) {
 					alert("delete error");
@@ -374,6 +376,31 @@
 			$('body').addClass('modal-open');
 		}
 	});
+
+	$('#readModal').on("hide.bs.modal", function() {
+		$('#collapseLike').collapse("hide");
+	})
+
+	function regetPost(usertag, postdate) {
+
+		var post;
+
+		$.ajax({
+			url : "/post/" + usertag + "/" + postdate,
+			contentType : "JSON",
+			type : "GET",
+			async : false,
+			success : function(response) {
+				post = response;
+			}
+
+		});
+
+		selected.attr("data-post", JSON.stringify(post));
+
+		return post;
+	}
+	
 </script>
 </body>
 </html>
