@@ -15,5 +15,7 @@ public interface UserRepository extends JpaRepository<UserVo, String> {
 	public Optional<UserVo> findByEmailAndPassword(String email, String password);
 
 	public Optional<UserVo> findByUsertag(String usertag);
+	
+	public void deleteByUsertag(String usertag);
 
 }

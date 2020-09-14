@@ -26,16 +26,9 @@
 							</div>
 							<div class="form-group">
 								<div id="failed"></div>
-								<!-- <div class="custom-control custom-checkbox small">
-										<input type="checkbox" class="custom-control-input" id="customCheck"> <label
-											class="custom-control-label" for="customCheck">Remember Me</label>
-									</div> -->
 							</div>
 							<button class="btn btn-secondary btn-user btn-block" id="loginbtn">Login</button>
 							<hr>
-							<!-- <div class="text-center">
-								<a class="small" href="forgot-password.html">Forgot Password?</a>
-							</div> -->
 							<div class="text-center">
 								<a class="small" href="/register">Create an Account!</a>
 							</div>
@@ -67,9 +60,10 @@
 			async : false,
 			success : function(result) {
 				if (result.usertag) {
-					console.log(result);
 					sessionStorage.setItem("loginuser", result.usertag);
-					sessionStorage.setItem("userimg", result.userimg);
+					if (result.userimg) {
+						sessionStorage.setItem("userimg", result.userimg);
+					}
 					window.location.href = "/calendar/" + result.usertag;
 				} else {
 					alert("Invalid Email or Password");

@@ -437,7 +437,7 @@
 				data.append("upload", upload);
 
 				$.ajax({
-					url : "/user/background/" + usertag,
+					url : "/user/" + usertag + "/backimg",
 					processData : false,
 					contentType : false,
 					data : data,

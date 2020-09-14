@@ -74,34 +74,42 @@
 <script>
 	$('#registerbtn').on('click', function() {
 		if ($('#registerPassword').val() == $('#repeatPassword').val()) {
-			var user = new FormData();
-			user.append("email", $('#registerEmail').val());
-			user.append("password", $('#registerPassword').val());
-			user.append("username", $('#registerName').val());
-			user.append("usertag", $('#registerTag').val());
-
-			var upload = "";
-
-			if ($("#upload")[0].files[0]) {
-				upload = $("#upload")[0].files[0];
-			}
-			user.append("upload", upload);
+			var user = new Object();
+			user.email = $('#registerEmail').val();
+			user.password = $('#registerPassword').val();
+			user.username = $('#registerName').val();
+			user.usertag = $('#registerTag').val();
 
 			if (checkRegister()) {
-				console.log("ajax");
+				console.log($("#upload")[0].files[0]);
 				$.ajax({
 					url : "/user/register",
-					processData : false,
-					contentType : false,
-					data : user,
+					contentType : "application/json",
+					data : JSON.stringify(user),
 					type : "POST",
 					success : function(result) {
-						console.log(result);
 						if (result.email) {
 							alert("Email Already Exists");
 						} else if (result.usertag) {
 							alert("Usertag Already Exists");
 						} else {
+							if ($("#upload")[0].files[0]) {
+								var upload = new FormData();
+								upload.append("upload", $("#upload")[0].files[0])
+								$.ajax({
+									url : "/user/" + user.usertag + "/profileimg",
+									processData : false,
+									contentType : false,
+									data : upload,
+									type : "PUT",
+									success : function(result) {
+										console.log("profile success");
+									},
+									error : function(request, status, error) {
+										console.log("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+									}
+								});
+							}
 							alert("Register success");
 							window.location.href = "/";
 						}
@@ -111,6 +119,7 @@
 					}
 				});
 			}
+
 		} else {
 			alert("Please Check Password");
 		}
@@ -127,14 +136,13 @@
 		} else if (!$('#registerName').val()) {
 			alert("Please Check Username");
 			return false;
-		} else if (!$('#registerTag').val()) {
-			alert("Please Check Usertag");
+		} else if ($('#registerTag').val() < 4) {
+			alert("Usertag is Too Short");
 			return false;
 		} else if (!$('#registerPassword').val()) {
 			alert("Please Check Password");
 			return false;
 		} else if ($('#registerPassword').val().length < 8) {
-			console.log($('#registerPassword').val().length);
 			alert("Password is Too Short");
 			return false;
 		} else {

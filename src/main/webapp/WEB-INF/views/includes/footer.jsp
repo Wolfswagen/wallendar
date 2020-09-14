@@ -159,9 +159,11 @@
 <script>
 	if (sessionStorage.getItem("loginuser")) {
 		$('#logged-on-user').text(sessionStorage.getItem("loginuser"));
+		$("#profile").attr("href", "/profile/" + sessionStorage.getItem("loginuser"));
 	} else {
 		$('#userdropdownmenu').hide();
 	}
+	
 	if (sessionStorage.getItem("userimg")) {
 		$('#profileimg').attr("src", "../" + sessionStorage.getItem("userimg"));
 	}
@@ -205,7 +207,6 @@
 
 	$('#logoutbtn').on('click', function() {
 		sessionStorage.clear();
-		sessionStorage.getItem("loginuser");
 		window.location.href = "/";
 	});
 
@@ -400,7 +401,6 @@
 
 		return post;
 	}
-	
 </script>
 </body>
 </html>

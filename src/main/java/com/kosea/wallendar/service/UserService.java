@@ -28,12 +28,20 @@ public class UserService {
 	public void registerUser(UserVo user) {
 
 		String salt = SHA256Util.generateSalt();
+
 		user.setSalt(salt);
 
 		String password = user.getPassword();
+
 		password = SHA256Util.getEncrpyt(password, salt);
 
 		user.setPassword(password);
+
+		userRepository.save(user);
+
+	}
+
+	public void updateWithoutPassword(UserVo user) {
 
 		userRepository.save(user);
 
@@ -67,6 +75,16 @@ public class UserService {
 		Optional<UserVo> user = userRepository.findByEmail(email);
 
 		return user;
+	}
+
+	public void removeUser(String usertag) {
+
+		Optional<UserVo> user = userRepository.findByUsertag(usertag);
+
+		if (user.isPresent()) {
+			userRepository.deleteById(user.get().getEmail());
+		}
+
 	}
 
 	public List<FollowVo> findFollowings(String usertag) {
