@@ -98,10 +98,16 @@ public class PostService {
 
 		Optional<PostVo> e = postRepository.findById(pk);
 
+		System.out.println(e.get() + "/" + post);
+
 		if (e.isPresent()) {
 			if (post.getPic() == null) {
 				post.setPic(e.get().getPic());
 			}
+
+			post.setLikes(e.get().getLikes());
+			post.setReply(e.get().getReply());
+
 			postRepository.save(post);
 		}
 	}

@@ -70,6 +70,8 @@ public class WallendarRestController {
 		posts.put("userpost", userPost);
 
 		posts.put("tagpost", tagPost);
+		
+		posts.put("tag", tag);
 
 		return new ResponseEntity<Map<String, Object>>(posts, HttpStatus.OK);
 

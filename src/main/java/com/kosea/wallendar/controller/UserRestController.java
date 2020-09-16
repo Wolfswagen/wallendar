@@ -91,8 +91,6 @@ public class UserRestController {
 	public ResponseEntity<Boolean> updateUser(@PathVariable("usertag") String usertag, @RequestBody UserVo userinfo) {
 
 		Optional<UserVo> user = userService.findByUsertag(usertag);
-		
-		System.out.println(user.get());
 
 		if (user.isPresent()) {
 			if (userinfo.getUsertag() != null) {
@@ -235,8 +233,6 @@ public class UserRestController {
 	@DeleteMapping(value = "/follow", produces = { MediaType.APPLICATION_JSON_VALUE }, consumes = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> unfollowUser(@RequestBody FollowVo follow) {
-
-		System.out.println(follow);
 
 		userService.unFollowUser(follow.getUsertag(), follow.getFollow());
 

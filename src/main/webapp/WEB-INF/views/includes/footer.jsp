@@ -313,6 +313,7 @@
 	});
 
 	function commentOnClick(e) {
+		console.log($(e).text().substring(2));
 		if ($(e).text().substring(0, 1) == "x") {
 			$('#deleteModal .modal-title').text("Delete Comment");
 			$('#deletebtn').attr("data-rno", $(e).attr("data-rno"));
@@ -388,7 +389,7 @@
 
 		$.ajax({
 			url : "/post/" + usertag + "/" + postdate,
-			contentType : "JSON",
+			contentType : "application/json",
 			type : "GET",
 			async : false,
 			success : function(response) {

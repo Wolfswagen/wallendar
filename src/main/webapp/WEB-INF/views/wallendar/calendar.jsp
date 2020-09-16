@@ -3,6 +3,8 @@
 
 <div class="card bg-dark text-white">
 	<img src="/image/profileback.png" class="card-img" id="bgimg" style="max-height: 150px;">
+
+
 	<div class="card-img-overlay">
 		<div>
 			<h1 class="card-title font-weight-bolder">
@@ -16,13 +18,10 @@
 
 				<button id="followbtn" class="btn btn-sm btn-light">+Follow</button>
 			</h1>
-
+			
 		</div>
-
-
 	</div>
 </div>
-<hr>
 
 <div id='calendar' class="m-auto"></div>
 <!--calendar  -->
@@ -73,6 +72,7 @@
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 						<button type="button" class="btn btn-primary" id="post">Post</button>
+
 					</div>
 				</div>
 			</div>
@@ -155,9 +155,6 @@
 	</div>
 </div>
 
-
-
-
 <script charset="utf-8">
 	var selected;
 	document.addEventListener('DOMContentLoaded', function() {
@@ -167,21 +164,22 @@
 		}
 
 		var url = location.pathname.replace("calendar", "post");
-		var usertag = url.replace("/post/", "");
-
-		$('#usertag').text("@" + usertag);
+		var usertag;
 
 		var result;
 
 		$.ajax({
 			url : url,
-			contentType : "JSON",
+			contentType : "application/json",
 			type : "GET",
 			async : false,
 			success : function(response) {
-				result = response["userpost"]
+				result = response["userpost"];
+				usertag = response["usertag"];
 			}
 		});
+
+		$('#usertag').text("@" + usertag);
 
 		var calendarEl = document.getElementById('calendar');
 
@@ -236,7 +234,7 @@
 		var user;
 		$.ajax({
 			url : "/user/" + usertag,
-			contentType : "JSON",
+			contentType : "application/json",
 			type : "GET",
 			async : false,
 			success : function(response) {
@@ -251,8 +249,7 @@
 		}
 
 		if (user.bgimg) {
-			$(".card-img-overlay").attr("data-toggle", "modal").attr("data-target", "#bgModal");
-
+			$("#usertag").attr("data-toggle", "modal").attr("data-target", "#bgModal")
 			$('#bgpreview').attr("src", "../" + user.bgimg);
 
 			$('#bgimg').css({
@@ -262,7 +259,7 @@
 		}
 
 		if (usertag == sessionStorage.getItem("loginuser")) {
-			$(".card-img-overlay").attr("data-toggle", "modal").attr("data-target", "#bgModal");
+			$("#usertag").attr("data-toggle", "modal").attr("data-target", "#bgModal");
 			$('#bgpost, #bginput').attr("hidden", false);
 		}
 		/* userprofile */
@@ -291,7 +288,7 @@
 
 		$.ajax({
 			url : "/user/follow/" + usertag,
-			contentType : "JSON",
+			contentType : "application/json",
 			type : "GET",
 			async : false,
 			success : function(response) {
@@ -397,6 +394,7 @@
 					data : data,
 					type : method,
 					success : function(result) {
+						$('#post').text("Uploading....");
 						setTimeout(function() {
 							regetPost(usertag, postdate);
 							$('#postModal').modal("hide");
@@ -405,7 +403,8 @@
 								localStorage.setItem("initdate", postdate);
 								window.location.reload();
 							})
-						}, 1000);
+						}, 3000);
+
 					},
 					error : function(request, status, error) {
 						alert($('#post').text() + " Error");
@@ -443,9 +442,10 @@
 					data : data,
 					type : "PUT",
 					success : function(result) {
+						$('#bgpost').text("Uploading....");
 						setTimeout(function() {
 							window.location.reload();
-						}, 1000);
+						}, 3000);
 					},
 					error : function(request, status, error) {
 						alert($('#post').text() + " Error");
@@ -524,7 +524,7 @@
 
 			$.ajax({
 				url : "/user/follow/" + usertag,
-				contentType : "JSON",
+				contentType : "application/json",
 				type : "GET",
 				async : false,
 				success : function(response) {
@@ -566,6 +566,7 @@
 					var name = input.files[0].name;
 					var reader = new FileReader();
 					reader.onload = function(e) {
+						$('#preview').attr('src', e.target.result);
 						$('#bgpreview').attr('src', e.target.result);
 						$('.custom-file-label').text(name);
 					}
