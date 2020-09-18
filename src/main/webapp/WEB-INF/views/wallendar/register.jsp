@@ -75,17 +75,26 @@
 	$('#registerbtn').on('click', function() {
 		if ($('#registerPassword').val() == $('#repeatPassword').val()) {
 			var user = new Object();
+			var data = new FormData();
+
 			user.email = $('#registerEmail').val();
 			user.password = $('#registerPassword').val();
 			user.username = $('#registerName').val();
 			user.usertag = $('#registerTag').val();
 
+			if ($("#upload")[0].files[0]) {
+				data.append("upload", $("#upload")[0].files[0]);
+			}
+
+			data.append("userinfo", JSON.stringify(user));
+
 			if (checkRegister()) {
 				console.log($("#upload")[0].files[0]);
 				$.ajax({
 					url : "/user/register",
-					contentType : "application/json",
-					data : JSON.stringify(user),
+					processData : false,
+					contentType : false,
+					data : data,
 					type : "POST",
 					success : function(result) {
 						if (result.email) {
@@ -93,23 +102,6 @@
 						} else if (result.usertag) {
 							alert("Usertag Already Exists");
 						} else {
-							if ($("#upload")[0].files[0]) {
-								var upload = new FormData();
-								upload.append("upload", $("#upload")[0].files[0])
-								$.ajax({
-									url : "/user/" + user.usertag + "/profileimg",
-									processData : false,
-									contentType : false,
-									data : upload,
-									type : "PUT",
-									success : function(result) {
-										console.log("profile success");
-									},
-									error : function(request, status, error) {
-										console.log("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
-									}
-								});
-							}
 							alert("Register success");
 							window.location.href = "/";
 						}
@@ -152,7 +144,6 @@
 	}
 
 	$("#upload").change(function() {
-
 		readURL(this);
 	});
 

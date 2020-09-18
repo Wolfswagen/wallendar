@@ -59,10 +59,10 @@
 			type : "POST",
 			async : false,
 			success : function(result) {
-				if (result.usertag) {
+				if (result) {
 					sessionStorage.setItem("loginuser", result.usertag);
-					if (result.userimg) {
-						sessionStorage.setItem("userimg", result.userimg);
+					if (result.profileimg) {
+						sessionStorage.setItem("userimg", result.profileimg);
 					}
 					window.location.href = "/calendar/" + result.usertag;
 				} else {

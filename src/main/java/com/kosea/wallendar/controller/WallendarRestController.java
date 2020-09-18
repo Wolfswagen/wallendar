@@ -1,16 +1,12 @@
 package com.kosea.wallendar.controller;
 
-import java.io.File;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -40,8 +36,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WallendarRestController {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 	@NonNull
 	private final PostService postService;
 
@@ -62,16 +56,16 @@ public class WallendarRestController {
 		Map<String, Object> posts = new HashMap<String, Object>();
 
 		if (user.isPresent()) {
-			posts.put("usertag", user.get().getUsertag());
+			user.get().setPassword("");
+			user.get().setSalt("");
+			posts.put("user", user.get());
 		} else {
-			posts.put("usertag", "");
+			posts.put("user", "");
 		}
 
 		posts.put("userpost", userPost);
 
 		posts.put("tagpost", tagPost);
-		
-		posts.put("tag", tag);
 
 		return new ResponseEntity<Map<String, Object>>(posts, HttpStatus.OK);
 
@@ -104,35 +98,9 @@ public class WallendarRestController {
 			@PathVariable("postdate") String postdate, @RequestParam MultipartFile upload, @RequestParam String tags)
 			throws Exception {
 
-		String upPath = "C:/Users/K-joon/git/wallendar/src/main/resources/static/upload/" + usertag;
+		byte[] bytes = upload.getBytes();
+		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).tags(tags).pic(bytes).build();
 
-		String pic = upload.getOriginalFilename().replaceAll(" ", "_");
-
-		pic = postdate + "_" + pic.substring(pic.lastIndexOf("\\") + 1);
-
-		File saveDir = new File(upPath);
-
-		File savePic = new File(upPath, pic);
-
-		if (saveDir.exists()) {
-			try {
-				upload.transferTo(savePic);
-			} catch (Exception e) {
-				logger.info(e.getMessage());
-			}
-		} else {
-			saveDir.mkdir();
-			logger.info("mkdir : " + String.valueOf(saveDir.exists()));
-			try {
-				upload.transferTo(savePic);
-			} catch (Exception e) {
-				logger.info(e.getMessage());
-			}
-		}
-
-		String picPath = "upload/" + usertag + "/" + pic;
-
-		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).pic(picPath).tags(tags).build();
 		postService.savePost(post);
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
@@ -146,34 +114,8 @@ public class WallendarRestController {
 		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).tags(tags).build();
 
 		if (upload != null) {
-			String upPath = "C:/Users/K-joon/git/wallendar/src/main/resources/static/upload/" + usertag;
-
-			String pic = upload.getOriginalFilename();
-
-			pic = postdate + "_" + upload.getOriginalFilename().replaceAll(" ", "_");
-
-			File saveDir = new File(upPath);
-
-			File savePic = new File(upPath, pic);
-
-			if (saveDir.exists()) {
-				try {
-					upload.transferTo(savePic);
-				} catch (Exception e) {
-					logger.info(e.getMessage());
-				}
-			} else {
-				saveDir.mkdir();
-				logger.info("mkdir : " + String.valueOf(saveDir.exists()));
-				try {
-					upload.transferTo(savePic);
-				} catch (Exception e) {
-					logger.info(e.getMessage());
-				}
-			}
-
-			String picPath = "upload/" + usertag + "/" + pic;
-			post.setPic(picPath);
+			byte[] bytes = upload.getBytes();
+			post.setPic(bytes);
 		}
 
 		postService.updateById(usertag, df.parse(postdate), post);
@@ -197,7 +139,7 @@ public class WallendarRestController {
 
 		reply.setPostdate(df.parse(postdate));
 
-		postService.saveComment(reply); 
+		postService.saveComment(reply);
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}

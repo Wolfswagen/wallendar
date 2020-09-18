@@ -3,6 +3,7 @@ package com.kosea.wallendar.domain;
 import javax.persistence.Entity;
 
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,8 @@ public class UserVo {
 	private String username;
 	private String usertag;
 	private String salt;
-	private String userimg;
-	private String bgimg;
+	@Lob
+	private byte[] profileimg;
+	@Lob
+	private byte[] backimg;
 }

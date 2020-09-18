@@ -42,8 +42,8 @@
 									class="form-control-plaintext form-control-user pl-2" id="userPassword"
 									data-toggle="modal" data-target="#checkModal" placeholder="Change Password">
 							</div>
-							<button class="btn btn-primary btn-user btn-block" id="userupdatebtn" data-toggle="modal"
-								data-target="#checkModal">Update Profile</button>
+							<button class="btn btn-primary btn-user btn-block" id="userupdatebtn">Update
+								Profile</button>
 							<hr>
 							<button class="btn btn-danger btn-user btn-block" id="deleteuserbtn">Delete Account</button>
 						</div>
@@ -150,7 +150,7 @@
 		});
 
 		$('#preview').css({
-			"background-image" : "url(../" + result.userimg + ")"
+			"background-image" : "url('data:image/jpeg;base64," + result.profileimg + "')"
 		});
 
 		$('#userName').val(result.username);
@@ -158,6 +158,12 @@
 
 		$('#userupdatebtn').on('click', function() {
 			var user = new Object();
+
+			var data = new FormData();
+
+			if ($("#upload")[0].files[0]) {
+				data.append("upload", $("#upload")[0].files[0])
+			}
 
 			if ($('#userTag').val() != result.usertag) {
 				if ($('#userTag').val() < 4) {
@@ -175,30 +181,16 @@
 				user.password = $('#userPassword').val();
 			}
 
+			data.append("userinfo", JSON.stringify(user));
+
 			$.ajax({
 				url : "/user/" + sessionStorage.getItem("loginuser"),
-				contentType : "application/json",
-				data : JSON.stringify(user),
+				processData : false,
+				contentType : false,
+				data : data,
 				type : "PUT",
 				success : function(response) {
 					if (response) {
-						if ($("#upload")[0].files[0]) {
-							var upload = new FormData();
-							upload.append("upload", $("#upload")[0].files[0])
-							$.ajax({
-								url : "/user/" + user.usertag + "/profileimg",
-								processData : false,
-								contentType : false,
-								data : upload,
-								type : "PUT",
-								success : function(response) {
-									console.log("Profile Update success");
-								},
-								error : function(request, status, error) {
-									console.log("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
-								}
-							});
-						}
 						sessionStorage.clear();
 						alert("Profile Update success.");
 						window.location.href = "/";
@@ -210,6 +202,7 @@
 					console.log("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
 				}
 			});
+			z
 		});
 
 		$('#deleteuserbtn').on('click', function() {
@@ -238,8 +231,6 @@
 			data.email = result.email;
 			data.password = $('#checkPassword').val();
 
-			console.log($('#checkpassbtn').attr("data-method"));
-
 			$.ajax({
 				url : "/user/login",
 				contentType : "application/json",
@@ -252,7 +243,6 @@
 						if ($('#checkpassbtn').attr("data-method") == "delete") {
 							$('#deleteuserModal').modal("show");
 							$('#checkpassbtn').attr("data-method", "");
-							console.log($('#checkpassbtn').attr("data-method"));
 						} else {
 							$('#passwordModal').modal("show");
 						}
@@ -284,7 +274,6 @@
 	});
 
 	$("#upload").change(function() {
-
 		readURL(this);
 	});
 

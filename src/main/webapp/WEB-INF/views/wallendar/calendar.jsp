@@ -1,27 +1,34 @@
 <%@include file="../includes/header.jsp"%>
 <link href='../fullcalendar/lib/main.css' rel='stylesheet' />
 
+
 <div class="card bg-dark text-white">
-	<img src="/image/profileback.png" class="card-img" id="bgimg" style="max-height: 150px;">
-
-
+	<img src="/image/backimg.png" class="card-img" id="bgimg" style="max-height: 200px">
 	<div class="card-img-overlay">
 		<div>
 			<h1 class="card-title font-weight-bolder">
 				<img class="img-fluid rounded-circle border"
 					style="width: 5%; min-width: 50px; background-color: white; background-size: cover;"
 					src="../image/thumbnail.png" id="userimg"> <span id="usertag"></span>
-				<button id="followinfo" class="btn btn-sm btn-light" data-toggle="modal"
-					data-target="#followModal">
-					Follower : <span id="followernum"></span> / Following : <span id="followingnum"></span>
-				</button>
-
-				<button id="followbtn" class="btn btn-sm btn-light">+Follow</button>
 			</h1>
-			
 		</div>
 	</div>
+	<div></div>
 </div>
+
+
+<div>
+	<button id="followinfo" class="btn btn-sm btn-light" data-toggle="modal"
+		data-target="#followModal">
+		Follower : <span id="followernum"></span> / Following : <span id="followingnum"></span>
+	</button>
+	<button id="followbtn" class="btn btn-sm btn-light">+Follow</button>
+	<button type="button" class="btn btn-light float-right" id="bgbtn" data-toggle="modal" data-target="#bgModal" hidden="true">Update Wallpaper</button>
+</div>
+
+<hr>
+
+
 
 <div id='calendar' class="m-auto"></div>
 <!--calendar  -->
@@ -136,7 +143,7 @@
 				<div class="text-center p-3">
 					<img class="img-fluid mw-25" id="bgpreview">
 				</div>
-				<div class="input-group p-3" id="bginput" hidden="true">
+				<div class="input-group p-3" id="bginput">
 					<div class="input-group-prepend">
 						<span class="input-group-text" id="bguploadgroup">Upload</span>
 					</div>
@@ -147,7 +154,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-primary" id="bgpost" hidden="true">OK</button>
+					<button type="button" class="btn btn-primary" id="bgpost">OK</button>
 				</div>
 
 			</div>
@@ -164,7 +171,7 @@
 		}
 
 		var url = location.pathname.replace("calendar", "post");
-		var usertag;
+		var user;
 
 		var result;
 
@@ -174,10 +181,12 @@
 			type : "GET",
 			async : false,
 			success : function(response) {
+				user = response["user"];
 				result = response["userpost"];
-				usertag = response["usertag"];
 			}
 		});
+
+		var usertag = user.usertag;
 
 		$('#usertag').text("@" + usertag);
 
@@ -213,7 +222,7 @@
 				if (event.extendedProps.post) {
 					$td.css({
 						"background-size" : "cover",
-						"background-image" : "url(../" + event.extendedProps.post.pic + ")"
+						"background-image" : "url(data:image/jpeg;base64," + event.extendedProps.post.pic + ")"
 					});
 
 					$td.attr("data-post", JSON.stringify(event.extendedProps.post));
@@ -222,6 +231,7 @@
 				}
 			}
 		});
+
 		calendar.render();
 
 		localStorage.clear();
@@ -231,37 +241,33 @@
 		}
 		/* calendar rendered */
 
-		var user;
-		$.ajax({
-			url : "/user/" + usertag,
-			contentType : "application/json",
-			type : "GET",
-			async : false,
-			success : function(response) {
-				user = response;
-			}
-		});
-
-		if (user.userimg) {
+		if (user.profileimg) {
 			$('#userimg').css({
-				"background-image" : "url(../" + user.userimg + ")"
+				"background-image" : "url(data:image/jpeg;base64," + user.profileimg + ")"
 			});
 		}
 
-		if (user.bgimg) {
-			$("#usertag").attr("data-toggle", "modal").attr("data-target", "#bgModal")
-			$('#bgpreview').attr("src", "../" + user.bgimg);
+		if (user.backimg) {
+			$('.card-img-overlay').on('click', function() {
+				var max = $("#bgimg").css("max-height");
+				if (max == '200px') {
+					$("#bgimg").css("max-height", "");
+				} else {
+					$("#bgimg").css("max-height", "200px");
+				}
+			});
+			$('#bgpreview').attr("src", "data:image/jpeg;base64," + user.backimg);
 
 			$('#bgimg').css({
 				"background-size" : "cover",
-				"background-image" : "url(../" + user.bgimg + ")"
+				"background-image" : "url(data:image/jpeg;base64," + user.backimg + ")"
 			});
 		}
-
+		
 		if (usertag == sessionStorage.getItem("loginuser")) {
-			$("#usertag").attr("data-toggle", "modal").attr("data-target", "#bgModal");
-			$('#bgpost, #bginput').attr("hidden", false);
+			$('#bgbtn').attr("hidden", false); 
 		}
+
 		/* userprofile */
 
 		$('#readModal').on('show.bs.modal', function(event) {
@@ -275,7 +281,7 @@
 			setReadModal(post);
 
 			if (usertag == sessionStorage.getItem("loginuser")) {
-				$('#udmenu').attr("hidden", false);
+				$('#udmenu').attr("hidden", false); 
 			}
 		});
 
@@ -403,7 +409,7 @@
 								localStorage.setItem("initdate", postdate);
 								window.location.reload();
 							})
-						}, 3000);
+						}, 1000);
 
 					},
 					error : function(request, status, error) {
@@ -445,7 +451,7 @@
 						$('#bgpost').text("Uploading....");
 						setTimeout(function() {
 							window.location.reload();
-						}, 3000);
+						}, 1000);
 					},
 					error : function(request, status, error) {
 						alert($('#post').text() + " Error");

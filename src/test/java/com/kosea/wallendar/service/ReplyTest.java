@@ -34,11 +34,6 @@ public class ReplyTest {
 
 		String usertag = "test";
 		Date postdate = df.parse("2020-09-08");
-		PostVo post = PostVo.builder().usertag(usertag).postdate(postdate).tags("test").pic("test").build();
-
-		post.addReply(ReplyVo.builder().contents("test1").writer("test1").build());
-
-		post.addReply(ReplyVo.builder().contents("test2").writer("test2").build());
 
 		PkPost id = PkPost.builder().usertag(usertag).postdate(postdate).build();
 

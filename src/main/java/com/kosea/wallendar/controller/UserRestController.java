@@ -1,6 +1,5 @@
 package com.kosea.wallendar.controller;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kosea.wallendar.domain.FollowVo;
 import com.kosea.wallendar.domain.UserVo;
 import com.kosea.wallendar.service.UserService;
@@ -41,7 +41,7 @@ public class UserRestController {
 	public ResponseEntity<UserVo> getUser(@PathVariable("usertag") String usertag) {
 
 		Optional<UserVo> user = userService.findByUsertag(usertag);
-
+		
 		user.get().setPassword("");
 
 		user.get().setSalt("");
@@ -49,9 +49,13 @@ public class UserRestController {
 		return new ResponseEntity<UserVo>(user.get(), HttpStatus.OK);
 	}
 
-	@PostMapping(value = "/register", produces = { MediaType.APPLICATION_JSON_VALUE }, consumes = {
-			MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Map<String, Object>> addUser(@RequestBody UserVo user) {
+	@PostMapping(value = "/register", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<Map<String, Object>> addUser(@RequestParam String userinfo,
+			@RequestParam(required = false) MultipartFile upload) throws Exception {
+
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		UserVo user = objectMapper.readValue(userinfo, UserVo.class);
 
 		Optional<UserVo> userbyemail = userService.findByEmail(user.getEmail());
 
@@ -64,6 +68,14 @@ public class UserRestController {
 		} else if (userbytag.isPresent()) {
 			userCheck.put("usertag", true);
 		} else {
+			if (upload != null) {
+				try {
+					byte[] bytes = upload.getBytes();
+					user.setProfileimg(bytes);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 			userService.registerUser(user);
 		}
 
@@ -71,124 +83,83 @@ public class UserRestController {
 	}
 
 	@PostMapping(value = "/login", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Map<String, Object>> loginUser(@RequestBody HashMap<String, String> userInfo) {
-
-		Map<String, Object> result = new HashMap<String, Object>();
+	public ResponseEntity<UserVo> loginUser(@RequestBody HashMap<String, String> userInfo) {
 
 		Optional<UserVo> user = userService.loginUser(userInfo.get("email"), userInfo.get("password"));
 
 		if (user.isPresent()) {
-			result.put("usertag", user.get().getUsertag());
-			result.put("userimg", user.get().getUserimg());
+			user.get().setPassword("");
+			user.get().setSalt("");
+			return new ResponseEntity<UserVo>(user.get(), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<UserVo>(HttpStatus.NO_CONTENT);
 		}
-
-		return new ResponseEntity<Map<String, Object>>(result, HttpStatus.OK);
-
 	}
 
-	@PutMapping(value = "/{usertag}", produces = { MediaType.APPLICATION_JSON_VALUE }, consumes = {
-			MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Boolean> updateUser(@PathVariable("usertag") String usertag, @RequestBody UserVo userinfo) {
+	@PutMapping(value = "/{usertag}", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<Boolean> updateUser(@PathVariable("usertag") String usertag,
+			@RequestParam(required = false) String userinfo, @RequestParam(required = false) MultipartFile upload)
+			throws Exception {
 
-		Optional<UserVo> user = userService.findByUsertag(usertag);
+		ObjectMapper objectMapper = new ObjectMapper();
 
-		if (user.isPresent()) {
-			if (userinfo.getUsertag() != null) {
-				if (userService.findByUsertag(userinfo.getUsertag()).isEmpty()) {
-					user.get().setUsertag(userinfo.getUsertag());
+		UserVo user = objectMapper.readValue(userinfo, UserVo.class);
+
+		log.info(user.toString());
+
+		Optional<UserVo> getuser = userService.findByUsertag(usertag);
+
+		if (getuser.isPresent()) {
+			if (user.getUsertag() != null) {
+				if (userService.findByUsertag(user.getUsertag()).isEmpty()) {
+					getuser.get().setUsertag(user.getUsertag());
 				} else {
 					return new ResponseEntity<Boolean>(false, HttpStatus.OK);
 				}
 			}
-			if (userinfo.getUsername() != null) {
-				user.get().setUsername(userinfo.getUsername());
+
+			if (user.getUsername() != null) {
+				getuser.get().setUsername(user.getUsername());
 			}
-			if (userinfo.getPassword() == null) {
-				userService.updateWithoutPassword(user.get());
+
+			if (upload != null) {
+				try {
+					byte[] bytes = upload.getBytes();
+
+					getuser.get().setProfileimg(bytes);
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			if (user.getPassword() != null) {
+				getuser.get().setPassword(user.getPassword());
+				userService.registerUser(getuser.get());
 			} else {
-				user.get().setPassword(userinfo.getPassword());
-				userService.registerUser(user.get());
+				userService.updateWithoutPassword(getuser.get());
 			}
 		}
+
+		log.info("save user : " + getuser.get());
 
 		return new ResponseEntity<Boolean>(true, HttpStatus.OK);
 	}
 
-	@PutMapping(value = "/{usertag}/profileimg", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Void> addProfileimg(@PathVariable("usertag") String usertag,
-			@RequestParam MultipartFile upload) {
-
-		Optional<UserVo> user = userService.findByUsertag(usertag);
-
-		if (user.isPresent()) {
-			if (upload != null) {
-				String upPath = "C:/Users/K-joon/git/wallendar/src/main/resources/static/upload/" + usertag;
-
-				String pic = upload.getOriginalFilename().replaceAll(" ", "_");
-
-				pic = "userimg_" + pic.substring(pic.lastIndexOf("\\") + 1);
-
-				File saveDir = new File(upPath);
-
-				File savePic = new File(upPath, pic);
-
-				if (saveDir.exists()) {
-					try {
-						upload.transferTo(savePic);
-					} catch (Exception e) {
-						log.info(e.getMessage());
-					}
-				} else {
-					saveDir.mkdir();
-					log.info("mkdir : " + String.valueOf(saveDir.exists()));
-					try {
-						upload.transferTo(savePic);
-					} catch (Exception e) {
-						log.info(e.getMessage());
-					}
-				}
-				String picPath = "upload/" + usertag + "/" + pic;
-				user.get().setUserimg(picPath);
-				userService.updateWithoutPassword(user.get());
-			}
-		}
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-	}
-
 	@PutMapping(value = "/{usertag}/backimg", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> setBackground(@PathVariable("usertag") String usertag,
-			@RequestParam MultipartFile upload) {
-		Optional<UserVo> user = userService.findByUsertag(usertag);
+			@RequestParam MultipartFile upload) throws Exception {
 
-		if (user.isPresent()) {
-			String upPath = "C:/Users/K-joon/git/wallendar/src/main/resources/static/upload/" + usertag;
+		UserVo user = userService.findByUsertag(usertag).get();
 
-			String pic = upload.getOriginalFilename().replaceAll(" ", "_");
+		try {
+			byte[] bytes = upload.getBytes();
 
-			pic = "bgimg_" + pic.substring(pic.lastIndexOf("\\") + 1);
+			user.setBackimg(bytes);
 
-			File saveDir = new File(upPath);
+			userService.updateWithoutPassword(user);
 
-			File savePic = new File(upPath, pic);
-
-			if (saveDir.exists()) {
-				try {
-					upload.transferTo(savePic);
-				} catch (Exception e) {
-					log.info(e.getMessage());
-				}
-			} else {
-				saveDir.mkdir();
-				log.info("mkdir : " + String.valueOf(saveDir.exists()));
-				try {
-					upload.transferTo(savePic);
-				} catch (Exception e) {
-					log.info(e.getMessage());
-				}
-			}
-			String picPath = "upload/" + usertag + "/" + pic;
-			user.get().setBgimg(picPath);
-			userService.updateWithoutPassword(user.get());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);

@@ -43,7 +43,7 @@
 		}
 
 		for (var i = 0; i < result.length; i++) {
-			$('#resultrow').append('<div class ="p-3 col"> <h4>@' + result[i].usertag + '</h4> <img class="border rounded" id = "thumbnail' + i + '" style="width:100%; max-width:700px; background:url(../' + result[i]["pic"] + ') no-repeat center center; background-size:cover; " src = /image/thumbnail.png><h4>' + result[i].tags.substring(0, result[i].tags.length - 1) + '</h4></div>');
+			$('#resultrow').append('<div class ="p-3 col"> <h4>@' + result[i].usertag + '</h4> <img class="border rounded" id = "thumbnail' + i + '" style="width:100%; max-width:700px; background:url(data:image/jpeg;base64,' + result[i]["pic"] + ') no-repeat center center; background-size:cover; " src = /image/thumbnail.png><h4>' + result[i].tags.substring(0, result[i].tags.length - 1) + '</h4></div>');
 			$('#thumbnail' + i).attr("data-post", JSON.stringify(result[i]));
 		}
 

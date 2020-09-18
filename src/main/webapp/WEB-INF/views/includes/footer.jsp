@@ -165,7 +165,7 @@
 	}
 	
 	if (sessionStorage.getItem("userimg")) {
-		$('#profileimg').attr("src", "../" + sessionStorage.getItem("userimg"));
+		$('#profileimg').attr("src", "data:image/jpeg;base64," + sessionStorage.getItem("userimg"));
 	}
 
 	$('#search-btn').on('click', function(e) {
@@ -233,18 +233,19 @@
 	});
 
 	function setReadModal(post) {
-
+	
+		
 		var likes = post.likes;
 		var comments = post.reply;
 		var tags = post.tags.substr(0, post.tags.length - 1).split("#");
-
+		
 		$('#likedusers span').text(likes.length);
 		$('#likebtn').show();
 		$('#unlikebtn').hide();
 		$('#readModal .modal-title').text(formDate(post.postdate).substring(0, 10));
 		$('#readModal #user-tag *').remove();
 		$('#readModal #user-tag').append('<a class="text-secondary" href="/calendar/'+post.usertag+'">@' + post.usertag);
-		$('#pic').attr("src", "../" + post.pic);
+		$('#pic').attr("src", "data:image/jpeg;base64," + post.pic);
 		$('#tags').text("");
 		$('#readModal #comments *').remove();
 		$('#readModal #likes *').remove();

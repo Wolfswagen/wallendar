@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
+import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 
@@ -32,8 +33,8 @@ public class PostVo {
 	private String usertag;
 	@Id
 	private Date postdate;
-
-	private String pic;
+	@Lob
+	private byte[] pic;
 
 	private String tags;
 
