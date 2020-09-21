@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kosea.wallendar.domain.FollowVo;
 import com.kosea.wallendar.domain.UserVo;
+import com.kosea.wallendar.service.AuthService;
 import com.kosea.wallendar.service.UserService;
 
 import lombok.NonNull;
@@ -37,16 +38,31 @@ public class UserRestController {
 	@NonNull
 	private final UserService userService;
 
+	@NonNull
+	private final AuthService authService;
+
 	@GetMapping(value = "/{usertag}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<UserVo> getUser(@PathVariable("usertag") String usertag) {
 
 		Optional<UserVo> user = userService.findByUsertag(usertag);
-		
+
 		user.get().setPassword("");
 
 		user.get().setSalt("");
 
 		return new ResponseEntity<UserVo>(user.get(), HttpStatus.OK);
+	}
+
+	@PostMapping(value = "/mail", produces = { MediaType.APPLICATION_JSON_VALUE }, consumes = {
+			MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<Map<String, String>> sendEmail(@RequestBody Map<String, String> email) {
+		Map<String, String> result = new HashMap<>();
+		Optional<UserVo> user = userService.findByEmail(email.get("email"));
+		if (user.isPresent()) {
+			result.put("code", authService.sendMail(email.get("email")));
+			result.put("usertag", user.get().getUsertag());
+		}
+		return new ResponseEntity<Map<String, String>>(result, HttpStatus.ACCEPTED);
 	}
 
 	@PostMapping(value = "/register", produces = { MediaType.APPLICATION_JSON_VALUE })
@@ -105,8 +121,6 @@ public class UserRestController {
 
 		UserVo user = objectMapper.readValue(userinfo, UserVo.class);
 
-		log.info(user.toString());
-
 		Optional<UserVo> getuser = userService.findByUsertag(usertag);
 
 		if (getuser.isPresent()) {
@@ -140,26 +154,28 @@ public class UserRestController {
 			}
 		}
 
-		log.info("save user : " + getuser.get());
-
 		return new ResponseEntity<Boolean>(true, HttpStatus.OK);
 	}
 
 	@PutMapping(value = "/{usertag}/backimg", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> setBackground(@PathVariable("usertag") String usertag,
-			@RequestParam MultipartFile upload) throws Exception {
+			@RequestParam(required = false) MultipartFile upload) throws Exception {
 
 		UserVo user = userService.findByUsertag(usertag).get();
+		if (upload != null) {
+			try {
+				byte[] bytes = upload.getBytes();
 
-		try {
-			byte[] bytes = upload.getBytes();
+				user.setBackimg(bytes);
 
-			user.setBackimg(bytes);
+				userService.updateWithoutPassword(user);
 
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			user.setBackimg(null);
 			userService.updateWithoutPassword(user);
-
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);

@@ -13,16 +13,16 @@
 						<div class="p-5">
 							<div class="text-center">
 								<h1 class="h4 text-gray-900 mb-4">
-									Welcome TO <br> WALLENDAR!
+									Welcome TO
+									<br>
+									WALLENDAR!
 								</h1>
 							</div>
 							<div class="form-group">
-								<input type="email" class="form-control form-control-user" id="inputEmail"
-									aria-describedby="emailHelp" placeholder="Enter Email Address...">
+								<input type="email" class="form-control form-control-user" id="inputEmail" aria-describedby="emailHelp" placeholder="Enter Email Address...">
 							</div>
 							<div class="form-group">
-								<input type="password" class="form-control form-control-user" id="inputPassword"
-									placeholder="Password">
+								<input type="password" class="form-control form-control-user" id="inputPassword" placeholder="Password">
 							</div>
 							<div class="form-group">
 								<div id="failed"></div>
@@ -31,6 +31,9 @@
 							<hr>
 							<div class="text-center">
 								<a class="small" href="/register">Create an Account!</a>
+							</div>
+							<div class="text-center">
+								<a class="small" href="/verify">Forgot Password?</a>
 							</div>
 						</div>
 					</div>

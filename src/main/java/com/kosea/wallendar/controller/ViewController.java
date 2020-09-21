@@ -30,10 +30,15 @@ public class ViewController {
 	public String registerView() {
 		return "register";
 	}
-	
+
 	@RequestMapping("/profile/{usertag}")
 	public String profileView() {
 		return "profile";
+	}
+
+	@RequestMapping("/verify")
+	public String verifyView() {
+		return "verify";
 	}
 
 }

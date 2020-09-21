@@ -7,9 +7,8 @@
 	<div class="card-img-overlay">
 		<div>
 			<h1 class="card-title font-weight-bolder">
-				<img class="img-fluid rounded-circle border"
-					style="width: 5%; min-width: 50px; background-color: white; background-size: cover;"
-					src="../image/thumbnail.png" id="userimg"> <span id="usertag"></span>
+				<img class="img-fluid rounded-circle border" style="width: 5%; min-width: 50px; background-color: white; background-size: cover;" src="../image/thumbnail.png" id="userimg">
+				<span id="usertag"></span>
 			</h1>
 		</div>
 	</div>
@@ -18,9 +17,11 @@
 
 
 <div>
-	<button id="followinfo" class="btn btn-sm btn-light" data-toggle="modal"
-		data-target="#followModal">
-		Follower : <span id="followernum"></span> / Following : <span id="followingnum"></span>
+	<button id="followinfo" class="btn btn-sm btn-light" data-toggle="modal" data-target="#followModal">
+		Follower :
+		<span id="followernum"></span>
+		/ Following :
+		<span id="followingnum"></span>
 	</button>
 	<button id="followbtn" class="btn btn-sm btn-light">+Follow</button>
 	<button type="button" class="btn btn-light float-right" id="bgbtn" data-toggle="modal" data-target="#bgModal" hidden="true">Update Wallpaper</button>
@@ -61,8 +62,7 @@
 					<label class="col-form-label">Tags</label>
 					<div class="input-group flexnowrap">
 
-						<div class="input-group-append btn-group" role="group" aria-label="tags-btn" id="added-tags">
-						</div>
+						<div class="input-group-append btn-group" role="group" aria-label="tags-btn" id="added-tags"></div>
 
 						<div class="input-group flexnowrap">
 							<div class="input-group-prepend">
@@ -153,8 +153,9 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-primary" id="bgpost">OK</button>
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-danger" id="bgdelete">Delete</button>
+					<button type="button" class="btn btn-primary" id="bgpost">Update</button>
 				</div>
 
 			</div>
@@ -263,9 +264,9 @@
 				"background-image" : "url(data:image/jpeg;base64," + user.backimg + ")"
 			});
 		}
-		
+
 		if (usertag == sessionStorage.getItem("loginuser")) {
-			$('#bgbtn').attr("hidden", false); 
+			$('#bgbtn').attr("hidden", false);
 		}
 
 		/* userprofile */
@@ -281,7 +282,7 @@
 			setReadModal(post);
 
 			if (usertag == sessionStorage.getItem("loginuser")) {
-				$('#udmenu').attr("hidden", false); 
+				$('#udmenu').attr("hidden", false);
 			}
 		});
 
@@ -349,8 +350,11 @@
 		$('#addtag').on('click', function(e) {
 
 			var tag = $('#input-tag').val().replace(/ /gi, "");
+			tag = tag.replace(/#/g, "");
+			tag = tag.replace(/@/g, "");
+			var btns = $('#added-tags .btn');
 			if (tag.length > 0) {
-				$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tag + ' x</button>')
+				$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tag + '</button>')
 			}
 			$('#input-tag').val("");
 		});
@@ -375,7 +379,7 @@
 				var btns = $('#added-tags .btn');
 
 				for (var i = 0; i < btns.length; i++) {
-					var tag = $(btns[i]).text().replace(" x", '');
+					var tag = $(btns[i]).text();
 					tags = tags + tag;
 				}
 
@@ -401,16 +405,14 @@
 					type : method,
 					success : function(result) {
 						$('#post').text("Uploading....");
-						setTimeout(function() {
-							regetPost(usertag, postdate);
-							$('#postModal').modal("hide");
-							$('#readModal').modal("show");
-							$('#readModal').on('hide.bs.modal', function() {
-								localStorage.setItem("initdate", postdate);
-								window.location.reload();
-							})
-						}, 1000);
-
+						regetPost(usertag, postdate);
+						$('#postModal').modal("hide");
+						$('#readModal').modal("show");
+						$('#udmenu').attr("hidden", true);
+						$('#readModal').on('hide.bs.modal', function() {
+							localStorage.setItem("initdate", postdate);
+							window.location.reload();
+						});
 					},
 					error : function(request, status, error) {
 						alert($('#post').text() + " Error");
@@ -449,9 +451,7 @@
 					type : "PUT",
 					success : function(result) {
 						$('#bgpost').text("Uploading....");
-						setTimeout(function() {
-							window.location.reload();
-						}, 1000);
+						window.location.reload();
 					},
 					error : function(request, status, error) {
 						alert($('#post').text() + " Error");
@@ -461,6 +461,11 @@
 			} else {
 				alert("Must Put Image!!");
 			}
+		});
+		
+		$('#bgdelete').on('click', function(){
+			$('#deleteModal .modal-title').text("Delete Image");
+			$('#deleteModal').modal("show");
 		});
 
 		$("#deletea").on('click', function() {
@@ -483,7 +488,7 @@
 			$('#preview').attr("src", pic);
 			$('#post').text("Update");
 			for (var i = 1; i < tags.length; i++) {
-				$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tags[i] + ' x</button>')
+				$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tags[i] + '</button>')
 			}
 		});
 

@@ -202,7 +202,6 @@
 					console.log("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
 				}
 			});
-			z
 		});
 
 		$('#deleteuserbtn').on('click', function() {

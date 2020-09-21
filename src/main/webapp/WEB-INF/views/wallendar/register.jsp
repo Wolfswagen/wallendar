@@ -12,9 +12,7 @@
 							<h1 class="h4 text-gray-900 mb-4">Create an Account!</h1>
 						</div>
 						<div class="text-center p-3">
-							<img class="img-fluid rounded-circle border"
-								style="width: 50%; height: 50%; background-size: cover; background-color: white"
-								src="../image/thumbnail.png" id="preview">
+							<img class="img-fluid rounded-circle border" style="width: 50%; height: 50%; background-size: cover; background-color: white" src="../image/thumbnail.png" id="preview">
 						</div>
 						<div class="input-group py-3">
 
@@ -28,38 +26,30 @@
 						</div>
 						<div class="user">
 							<div class="form-group">
-								<input type="email" class="form-control form-control-user" id="registerEmail"
-									placeholder="Email Address">
+								<input type="email" class="form-control form-control-user" id="registerEmail" placeholder="Email Address">
 							</div>
 
 							<div class="form-group">
-								<input type="text" class="form-control form-control-user" id="registerName"
-									placeholder="Name">
+								<input type="text" class="form-control form-control-user" id="registerName" placeholder="Name">
 							</div>
 
 							<div class="form-group">
-								<input type="text" class="form-control form-control-user" id="registerTag"
-									placeholder="Usertag">
+								<input type="text" class="form-control form-control-user" id="registerTag" placeholder="Usertag">
 							</div>
 
 							<div class="form-group row">
 								<div class="col-sm-6">
-									<input type="password" class="form-control form-control-user" id="registerPassword"
-										placeholder="Password">
+									<input type="password" class="form-control form-control-user" id="registerPassword" placeholder="Password">
 								</div>
 								<div class="col-sm-6">
-									<input type="password" class="form-control form-control-user" id="repeatPassword"
-										placeholder="Repeat Password">
+									<input type="password" class="form-control form-control-user" id="repeatPassword" placeholder="Repeat Password">
 								</div>
 							</div>
-							<button class="btn btn-primary btn-user btn-block" id="registerbtn">Register
-								Account</button>
+							<button class="btn btn-primary btn-user btn-block" id="registerbtn">Register Account</button>
 							<hr>
 						</div>
 
-						<!-- <div class="text-center">
-							<a class="small" href="forgot-password.html">Forgot Password?</a>
-						</div> -->
+						
 						<div class="text-center">
 							<a class="small" href="/">Already have an account? Login!</a>
 						</div>
@@ -80,7 +70,13 @@
 			user.email = $('#registerEmail').val();
 			user.password = $('#registerPassword').val();
 			user.username = $('#registerName').val();
-			user.usertag = $('#registerTag').val();
+			var usertag = $('#registerTag').val().replace(/ /g, "");
+			
+			usertag.replace(/@/g, "");
+			usertag.replace(/#/g, "");
+			
+			user.usertag = usertag;
+			
 
 			if ($("#upload")[0].files[0]) {
 				data.append("upload", $("#upload")[0].files[0]);
@@ -89,7 +85,6 @@
 			data.append("userinfo", JSON.stringify(user));
 
 			if (checkRegister()) {
-				console.log($("#upload")[0].files[0]);
 				$.ajax({
 					url : "/user/register",
 					processData : false,
@@ -119,7 +114,6 @@
 	});
 
 	function checkRegister() {
-		console.log("check");
 		var reg_email = /^([0-9a-zA-Z_\.-]+)@([0-9a-zA-Z_-]+)(\.[0-9a-zA-Z_-]+){1,2}$/;
 
 		if (!reg_email.test($('#registerEmail').val()) || !$('#registerEmail').val()) {

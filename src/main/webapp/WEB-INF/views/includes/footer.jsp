@@ -371,6 +371,19 @@
 				}
 			});
 		}
+		
+		if($('#deleteModal .modal-title').text() == "Delete Image"){
+ 			$.ajax({
+				url : "/user/" + sessionStorage.getItem("loginuser") + "/backimg",
+				type : "PUT",
+				success : function(result) {
+					window.location.reload();
+				},
+				error : function(request, status, error) {
+					alert($('#post').text() + " Error");
+				}
+			}); 
+		}
 
 	});
 
