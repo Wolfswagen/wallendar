@@ -19,7 +19,5 @@ class WallendarApplicationTests {
 		config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
 		encryptor.setConfig(config);
 		
-		System.out.println(encryptor.decrypt("RkSP/lDWjQ4Yqu9EXjZpoJSjArfTHm8iCzl+SGcQsIY="));
-		System.out.println(encryptor.decrypt("MwB4lBC3Sidf6a6c33G1sHxaDR0J6mMH"));
 	}
 }
