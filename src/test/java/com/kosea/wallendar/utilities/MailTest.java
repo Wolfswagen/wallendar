@@ -13,6 +13,6 @@ public class MailTest {
 	
 	@Test
 	public void sendMail() {
-		System.out.println(mail.sendMail("tn0000s@naver.com"));
+		System.out.println(mail.sendMail("asy8000@naver.com"));
 	}
 }
