@@ -11,7 +11,6 @@ public class AuthService {
 	@Autowired
 	public JavaMailSender sender;
 
-	@Async
 	public String sendMail(String email) {
 		String code = String.format("%06d", (int) (Math.random() * 10000));
 		SimpleMailMessage simpleMessage = new SimpleMailMessage();
