@@ -134,7 +134,6 @@ public class UserRestController {
 			}
 
 			if (upload != null) {
-				upService.delete(getuser.get().getProfileimg());
 				String key = getuser.get().getUsertag() + "_profile_";
 				getuser.get().setProfileimg(upService.upload(upload, key));
 			}
@@ -155,8 +154,6 @@ public class UserRestController {
 
 		UserVo user = userService.findByUsertag(usertag).get();
 		if (upload != null) {
-			System.out.println(user.getBackimg());
-			upService.delete(user.getBackimg());
 			String key = user.getUsertag() + "_back_";
 			user.setBackimg(upService.upload(upload, key));
 			userService.updateWithoutPassword(user);

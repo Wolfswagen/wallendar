@@ -116,7 +116,6 @@ public class WallendarRestController {
 		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).tags(tags).build();
 
 		if (upload != null) {
-			upService.delete(post.getPic());
 			String key = usertag + "_" + postdate + "_";
 			post.setPic(upService.upload(upload, key));
 		}
