@@ -51,7 +51,7 @@
 		}
 
 		for (var i = 0; i < tagpost.length; i++) {
-			$('#tagrow').append('<img class="mb-3 col rounded" id = "thumbnail' + i + '" style="width:100%; height:100%; background:url(data:image/jpeg;base64,' + tagpost[i]["pic"] + ') no-repeat center center; background-size:cover; " src = "../image/thumbnail.png">');
+			$('#tagrow').append('<img class="mb-3 col rounded" id = "thumbnail' + i + '" style="width:100%; height:100%; background:url(' + tagpost[i].pic + ') no-repeat center center; background-size:cover; " src = "../image/thumbnail.png">');
 			$('#thumbnail' + i).attr("data-post", JSON.stringify(tagpost[i]));
 		}
 

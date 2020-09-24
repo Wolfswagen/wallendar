@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kosea.wallendar.domain.FollowVo;
 import com.kosea.wallendar.domain.UserVo;
 import com.kosea.wallendar.service.AuthService;
+import com.kosea.wallendar.service.S3UploadService;
 import com.kosea.wallendar.service.UserService;
 
 import lombok.NonNull;
@@ -35,11 +36,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserRestController {
 
-	@NonNull
 	private final UserService userService;
 
-	@NonNull
 	private final AuthService authService;
+
+	private final S3UploadService upService;
 
 	@GetMapping(value = "/{usertag}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<UserVo> getUser(@PathVariable("usertag") String usertag) {
@@ -85,12 +86,8 @@ public class UserRestController {
 			userCheck.put("usertag", true);
 		} else {
 			if (upload != null) {
-				try {
-					byte[] bytes = upload.getBytes();
-					user.setProfileimg(bytes);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				String key = user.getUsertag() + "_profile_";
+				user.setProfileimg(upService.upload(upload, key));
 			}
 			userService.registerUser(user);
 		}
@@ -137,14 +134,9 @@ public class UserRestController {
 			}
 
 			if (upload != null) {
-				try {
-					byte[] bytes = upload.getBytes();
-
-					getuser.get().setProfileimg(bytes);
-
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				upService.delete(getuser.get().getProfileimg());
+				String key = getuser.get().getUsertag() + "_profile_";
+				getuser.get().setProfileimg(upService.upload(upload, key));
 			}
 			if (user.getPassword() != null) {
 				getuser.get().setPassword(user.getPassword());
@@ -163,16 +155,11 @@ public class UserRestController {
 
 		UserVo user = userService.findByUsertag(usertag).get();
 		if (upload != null) {
-			try {
-				byte[] bytes = upload.getBytes();
-
-				user.setBackimg(bytes);
-
-				userService.updateWithoutPassword(user);
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			System.out.println(user.getBackimg());
+			upService.delete(user.getBackimg());
+			String key = user.getUsertag() + "_back_";
+			user.setBackimg(upService.upload(upload, key));
+			userService.updateWithoutPassword(user);
 		} else {
 			user.setBackimg(null);
 			userService.updateWithoutPassword(user);
@@ -184,7 +171,10 @@ public class UserRestController {
 	@DeleteMapping(value = "/delete/{usertag}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> deleteUser(@PathVariable("usertag") String usertag) {
 
-		userService.removeUser(usertag);
+		UserVo user = userService.removeUser(usertag);
+
+		upService.delete(user.getBackimg());
+		upService.delete(user.getProfileimg());
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}

@@ -23,8 +23,8 @@ public class UserVo {
 	private String username;
 	private String usertag;
 	private String salt;
-	@Lob
-	private byte[] profileimg;
-	@Lob
-	private byte[] backimg;
+	
+	private String profileimg;
+	
+	private String backimg;
 }

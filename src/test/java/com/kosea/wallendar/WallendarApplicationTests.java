@@ -8,7 +8,6 @@ class WallendarApplicationTests {
 
 	@Test
 	void contextLoads() {
-		
 		PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
 		SimplePBEConfig config = new SimplePBEConfig();
 		config.setPassword("kosea");

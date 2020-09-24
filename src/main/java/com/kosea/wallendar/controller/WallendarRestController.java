@@ -27,8 +27,8 @@ import com.kosea.wallendar.domain.ReplyVo;
 import com.kosea.wallendar.domain.UserVo;
 import com.kosea.wallendar.service.UserService;
 import com.kosea.wallendar.service.PostService;
+import com.kosea.wallendar.service.S3UploadService;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -36,11 +36,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WallendarRestController {
 
-	@NonNull
 	private final PostService postService;
 
-	@NonNull
 	private final UserService userService;
+
+	private final S3UploadService upService;
 
 	DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -98,8 +98,10 @@ public class WallendarRestController {
 			@PathVariable("postdate") String postdate, @RequestParam MultipartFile upload, @RequestParam String tags)
 			throws Exception {
 
-		byte[] bytes = upload.getBytes();
-		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).tags(tags).pic(bytes).build();
+		String key = usertag + "_" + postdate + "_";
+
+		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).tags(tags)
+				.pic(upService.upload(upload, key)).build();
 
 		postService.savePost(post);
 
@@ -114,8 +116,9 @@ public class WallendarRestController {
 		PostVo post = PostVo.builder().usertag(usertag).postdate(df.parse(postdate)).tags(tags).build();
 
 		if (upload != null) {
-			byte[] bytes = upload.getBytes();
-			post.setPic(bytes);
+			upService.delete(post.getPic());
+			String key = usertag + "_" + postdate + "_";
+			post.setPic(upService.upload(upload, key));
 		}
 
 		postService.updateById(usertag, df.parse(postdate), post);
@@ -126,7 +129,11 @@ public class WallendarRestController {
 	@DeleteMapping(value = "/{usertag}/{postdate}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> deletePost(@PathVariable("usertag") String usertag,
 			@PathVariable("postdate") String postdate) throws Exception {
-		postService.deletePost(usertag, df.parse(postdate));
+
+		PostVo post = postService.deletePost(usertag, df.parse(postdate));
+
+		upService.delete(post.getPic());
+
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 

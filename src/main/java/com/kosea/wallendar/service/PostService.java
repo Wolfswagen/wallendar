@@ -24,13 +24,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PostService {
 
-	@NonNull
 	private final PostRepository postRepository;
 
-	@NonNull
 	private final ReplyRepository replyRepository;
 
-	@NonNull
 	private final LikeRepository likeRepository;
 
 	public PostVo savePost(PostVo post) {
@@ -112,9 +109,13 @@ public class PostService {
 		}
 	}
 
-	public void deletePost(String usertag, Date postdate) {
+	public PostVo deletePost(String usertag, Date postdate) {
 		PkPost pk = PkPost.builder().usertag(usertag).postdate(postdate).build();
-		postRepository.deleteById(pk);
+		Optional<PostVo> post = postRepository.findById(pk);
+		if (post.isPresent()) {
+			postRepository.deleteById(pk);
+		}
+		return post.get();
 	}
 
 	public void deleteComment(int rno) {

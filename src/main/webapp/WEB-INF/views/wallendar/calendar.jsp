@@ -7,8 +7,9 @@
 	<div class="card-img-overlay">
 		<div>
 			<div class="card-title font-weight-bolder">
-				<img class="img-fluid rounded-circle border" style="width: 5%; min-width: 50px; background-color: white; background-size: cover;" src="../image/thumbnail.png" id="userimg">
-				<span id="usertag"></span>
+				<img class="img-fluid rounded-circle border"
+					style="width: 5%; min-width: 50px; background-color: white; background-size: cover;"
+					src="../image/thumbnail.png" id="userimg"> <span id="usertag"></span>
 			</div>
 		</div>
 	</div>
@@ -16,14 +17,13 @@
 
 
 <div>
-	<button id="followinfo" class="btn btn-sm btn-light" data-toggle="modal" data-target="#followModal">
-		Follower :
-		<span id="followernum"></span>
-		/ Following :
-		<span id="followingnum"></span>
+	<button id="followinfo" class="btn btn-sm btn-light" data-toggle="modal"
+		data-target="#followModal">
+		Follower : <span id="followernum"></span> / Following : <span id="followingnum"></span>
 	</button>
 	<button id="followbtn" class="btn btn-sm btn-light">+Follow</button>
-	<button type="button" class="btn btn-light float-right" id="bgbtn" data-toggle="modal" data-target="#bgModal" hidden="true">Update Wallpaper</button>
+	<button type="button" class="btn btn-light float-right" id="bgbtn" data-toggle="modal"
+		data-target="#bgModal" hidden="true">Update Wallpaper</button>
 </div>
 
 <hr>
@@ -217,7 +217,7 @@
 				if (event.extendedProps.post) {
 					$td.css({
 						"background-size" : "cover",
-						"background-image" : "url(data:image/jpeg;base64," + event.extendedProps.post.pic + ")"
+						"background-image" : "url(" + event.extendedProps.post.pic + ")"
 					});
 					$td.attr("data-post", JSON.stringify(event.extendedProps.post));
 				}
@@ -252,7 +252,7 @@
 
 		if (user.profileimg) {
 			$('#userimg').css({
-				"background-image" : "url(data:image/jpeg;base64," + user.profileimg + ")"
+				"background-image" : "url(" + user.profileimg + ")"
 			});
 		}
 
@@ -265,11 +265,11 @@
 					$("#bgimg").css("max-height", "200px");
 				}
 			});
-			$('#bgpreview').attr("src", "data:image/jpeg;base64," + user.backimg);
+			$('#bgpreview').attr("src", user.backimg);
 
 			$('#bgimg').css({
 				"background-size" : "cover",
-				"background-image" : "url(data:image/jpeg;base64," + user.backimg + ")"
+				"background-image" : "url(" + user.backimg + ")"
 			});
 		}
 
@@ -337,8 +337,14 @@
 		$('#addtag').on('click', function(e) {
 
 			var tag = $('#input-tag').val().replace(/ /gi, "");
-			tag = tag.replace(/#/g, "");
-			tag = tag.replace(/@/g, "");
+
+			var reg_usertag = /[\{\}\[\]\/?.,;:|\)~`\-+<>@\#$%&\\\=\(\'\"]/gi;
+
+			if (reg_usertag.test(tag)) {
+				alert("Only *, !, _, ^ allowed");
+				tag = tag.replace(reg_usertag, "");
+			}
+
 			var btns = $('#added-tags .btn');
 			if (tag.length > 0) {
 				$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tag + '</button>')
@@ -384,27 +390,27 @@
 
 				data.append("tags", tags)
 
-				/* 				$.ajax({
-				 url : url + "/" + postdate,
-				 processData : false,
-				 contentType : false,
-				 data : data,
-				 type : method,
-				 success : function(result) {
-				 $('#post').text("Uploading....");
-				 regetPost(usertag, postdate);
-				 $('#postModal').modal("hide");
-				 $('#readModal').modal("show");
-				 $('#udmenu').attr("hidden", true);
-				 $('#readModal').on('hide.bs.modal', function() {
-				 localStorage.setItem("initdate", postdate);
-				 window.location.reload();
-				 });
-				 },
-				 error : function(request, status, error) {
-				 alert($('#post').text() + " Error");
-				 }
-				 }); */
+				$.ajax({
+					url : url + "/" + postdate,
+					processData : false,
+					contentType : false,
+					data : data,
+					type : method,
+					success : function(result) {
+						$('#post').text("Uploading....");
+						$('#postModal').modal("hide");
+						setReadModal(regetPost(usertag, postdate));
+						$('#readModal').modal("show");
+						$('#udmenu').attr("hidden", true);
+						$('#readModal').on('hide.bs.modal', function() {
+							localStorage.setItem("initdate", postdate);
+							window.location.reload();
+						});
+					},
+					error : function(request, status, error) {
+						alert($('#post').text() + " Error");
+					}
+				});
 
 			} else {
 				alert("Must Put Image!!");
@@ -474,7 +480,7 @@
 			$('#preview').attr("src", pic);
 			$('#post').text("Update");
 			for (var i = 1; i < tags.length; i++) {
-				$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tags[i] + '</button>')
+				$('#added-tags').append('<button type="button" class="btn btn-outline-secondary btn-sm border-0">#' + tags[i] + '</button>');
 			}
 		});
 

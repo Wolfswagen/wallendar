@@ -2,6 +2,7 @@ package com.kosea.wallendar.utilities;
 
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
+import org.jasypt.encryption.pbe.config.PBEConfig;
 import org.jasypt.encryption.pbe.config.SimplePBEConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,8 +19,10 @@ public class JasyptConfig {
 		config.setAlgorithm("PBEwithMD5AndDes");
 		config.setPoolSize(1);
 		config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
+
 		encryptor.setConfig(config);
 
 		return encryptor;
 	}
+
 }

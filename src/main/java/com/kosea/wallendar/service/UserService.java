@@ -19,10 +19,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserService {
 
-	@NonNull
 	private final UserRepository userRepository;
 
-	@NonNull
 	private final FollowRepository followRepository;
 
 	public void registerUser(UserVo user) {
@@ -77,14 +75,14 @@ public class UserService {
 		return user;
 	}
 
-	public void removeUser(String usertag) {
+	public UserVo removeUser(String usertag) {
 
 		Optional<UserVo> user = userRepository.findByUsertag(usertag);
 
 		if (user.isPresent()) {
 			userRepository.deleteById(user.get().getEmail());
 		}
-
+		return user.get();
 	}
 
 	public List<FollowVo> findFollowings(String usertag) {
@@ -108,13 +106,11 @@ public class UserService {
 	public void followUser(FollowVo follow) {
 
 		followRepository.save(follow);
-
 	}
 
 	public void unFollowUser(String usertag, String follow) {
 
 		followRepository.deleteByUsertagAndFollow(usertag, follow);
-
 	}
 
 }

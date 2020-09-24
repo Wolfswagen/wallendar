@@ -6,16 +6,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.kosea.wallendar.service.S3UploadService;
+
 
 @SpringBootTest
-public class S3upload {
+public class S3uploadTest {
 	@Autowired
-	S3uploader uploader;
+	S3UploadService uploader;
 
 	@Test
 	public void up() throws Exception {
 		
-		File file = new File("C:/Users/user/Downloads/tests3.jpg");
+		uploader.delete("DgOOtYwUwAEoNQ8.jpg");
 		
 	}
 }

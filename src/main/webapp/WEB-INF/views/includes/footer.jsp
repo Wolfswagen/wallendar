@@ -26,10 +26,10 @@
 					<img class="img-fluid" id="pic">
 				</div>
 				<div class="dropdown float-right pt-2" id="udmenu" hidden="true">
-					<button class="btn btn-secondary dropdown-toggle btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+					<button class="btn btn-secondary dropdown-toggle btn-sm" type="button" id="dropdownMenuButton"
+						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
 					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-						<a class="dropdown-item" id="deletea">Delete</a>
-						<a class="dropdown-item" id="updatea">Update</a>
+						<a class="dropdown-item" id="deletea">Delete</a> <a class="dropdown-item" id="updatea">Update</a>
 					</div>
 				</div>
 
@@ -41,20 +41,24 @@
 					<hr>
 					<div>
 						<button class="btn btn-light btn-sm" id="likebtn">
-							<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-calendar-check" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-  								<path fill-rule="evenodd" d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
-  								<path fill-rule="evenodd" d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z" />
+							<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-calendar-check"
+								fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  								<path fill-rule="evenodd"
+									d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
+  								<path fill-rule="evenodd"
+									d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z" />
 							</svg>
 						</button>
 						<button class="btn btn-light btn-sm" id="unlikebtn">
-							<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-calendar-check-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-  								<path fill-rule="evenodd" d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4V.5zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2zm-5.146-5.146a.5.5 0 0 0-.708-.708L7.5 10.793 6.354 9.646a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0l3-3z" />
+							<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-calendar-check-fill"
+								fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  								<path fill-rule="evenodd"
+									d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4V.5zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2zm-5.146-5.146a.5.5 0 0 0-.708-.708L7.5 10.793 6.354 9.646a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0l3-3z" />
 							</svg>
 						</button>
 
-						<a data-toggle="collapse" data-target="#collapseLike" aria-expanded="false" aria-controls="collapseExample" id="likedusers">
-							<span></span>
-							Likes
+						<a data-toggle="collapse" data-target="#collapseLike" aria-expanded="false"
+							aria-controls="collapseExample" id="likedusers"> <span></span> Likes
 						</a>
 						<div class="collapse" id="collapseLike">
 							<div class="card card-body border-0" id="likes"></div>
@@ -87,12 +91,12 @@
 <!-- read modal end -->
 
 <!-- Scroll to Top Button-->
-<a class="scroll-to-top rounded" href="#page-top">
-	<i class="fas fa-angle-up"></i>
+<a class="scroll-to-top rounded" href="#page-top"> <i class="fas fa-angle-up"></i>
 </a>
 
 <!-- Logout Modal-->
-<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog"
+	aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -110,7 +114,8 @@
 	</div>
 </div>
 
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog"
+	aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -159,9 +164,9 @@
 	} else {
 		$('#userdropdownmenu').hide();
 	}
-	
+
 	if (sessionStorage.getItem("userimg")) {
-		$('#profileimg').attr("src", "data:image/jpeg;base64," + sessionStorage.getItem("userimg"));
+		$('#profileimg').attr("src", sessionStorage.getItem("userimg"));
 	}
 
 	$('#search-btn').on('click', function(e) {
@@ -176,14 +181,14 @@
 			document.location.href = "/search/" + $('#search-xs').val();
 		}
 	});
-	
+
 	$('#search-xs').keypress(function(event) {
 		if (event.which == 13) {
 			$('#search-btn-xs').click();
 			return false;
 		}
 	});
-	
+
 	$('#search').keypress(function(event) {
 		if (event.which == 13) {
 			$('#search-btn').click();
@@ -228,19 +233,18 @@
 	});
 
 	function setReadModal(post) {
-	
-		
+
 		var likes = post.likes;
 		var comments = post.reply;
 		var tags = post.tags.substr(0, post.tags.length - 1).split("#");
-		
+
 		$('#likedusers span').text(likes.length);
 		$('#likebtn').show();
 		$('#unlikebtn').hide();
 		$('#readModal .modal-title').text(formDate(post.postdate).substring(0, 10));
 		$('#readModal #user-tag *').remove();
 		$('#readModal #user-tag').append('<a class="text-secondary" href="/calendar/'+post.usertag+'">@' + post.usertag);
-		$('#pic').attr("src", "data:image/jpeg;base64," + post.pic);
+		$('#pic').attr("src", post.pic);
 		$('#tags').text("");
 		$('#readModal #comments *').remove();
 		$('#readModal #likes *').remove();
@@ -364,9 +368,9 @@
 				}
 			});
 		}
-		
-		if($('#deleteModal .modal-title').text() == "Delete Image"){
- 			$.ajax({
+
+		if ($('#deleteModal .modal-title').text() == "Delete Image") {
+			$.ajax({
 				url : "/user/" + sessionStorage.getItem("loginuser") + "/backimg",
 				type : "PUT",
 				success : function(result) {
@@ -375,7 +379,7 @@
 				error : function(request, status, error) {
 					alert($('#post').text() + " Error");
 				}
-			}); 
+			});
 		}
 
 	});
@@ -391,7 +395,6 @@
 	})
 
 	function regetPost(usertag, postdate) {
-
 		var post;
 
 		$.ajax({
@@ -404,13 +407,11 @@
 			}
 
 		});
-		
-		$("[data-date="+postdate+"]").data("post", post) 
+
+		$("[data-date=" + postdate + "]").data("post", post);
 
 		return post;
 	}
-	
-
 </script>
 </body>
 </html>

@@ -150,7 +150,7 @@
 		});
 
 		$('#preview').css({
-			"background-image" : "url('data:image/jpeg;base64," + result.profileimg + "')"
+			"background-image" : "url(" + result.profileimg + ")"
 		});
 
 		$('#userName').val(result.username);
@@ -164,11 +164,16 @@
 			if ($("#upload")[0].files[0]) {
 				data.append("upload", $("#upload")[0].files[0])
 			}
+			
+			var reg_usertag = /[\{\}\[\]\/?.,;:|\)~`\-+<>@\#$%&\\\=\(\'\"]/gi;
 
 			if ($('#userTag').val() != result.usertag) {
-				if ($('#userTag').val() < 4) {
+				if ($('#userTag').val().length < 4) {
 					alert("Usertag is Too Short");
 					return;
+				}  else if (reg_usertag.test($('#userTag').val())) {
+					alert("Only *, !, _, ^ allowed");
+					return false;
 				}
 				user.usertag = $('#userTag').val();
 			}

@@ -1,4 +1,4 @@
-package com.kosea.wallendar.utilities;
+package com.kosea.wallendar.service;
 
 import javax.annotation.PostConstruct;
 
@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 
 @Service
 @NoArgsConstructor
-public class S3uploader {
+public class S3UploadService {
 
 	private AmazonS3 s3Client;
 
@@ -36,20 +36,26 @@ public class S3uploader {
 
 	@PostConstruct
 	public void setS3Client() {
-		
+
 		AWSCredentials credentials = new BasicAWSCredentials(this.accessKey, this.secretKey);
 
 		s3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials))
 				.withRegion(this.region).build();
 	}
 
-	public String upload(MultipartFile file) throws Exception {
-		String fileName = file.getOriginalFilename();
+	public String upload(MultipartFile file, String key) throws Exception {
+		String fileName = file.getOriginalFilename().replaceAll(" ", "");
 
-		s3Client.putObject(new PutObjectRequest(bucket, fileName, file.getInputStream(), null)
+		key = key + fileName;
+
+		s3Client.putObject(new PutObjectRequest(bucket, key, file.getInputStream(), null)
 				.withCannedAcl(CannedAccessControlList.PublicRead));
 
-		return s3Client.getUrl(bucket, fileName).toString();
+		return s3Client.getUrl(bucket, key).toString();
+	}
+
+	public void delete(String key) {
+		s3Client.deleteObject(bucket, key);
 	}
 
 }

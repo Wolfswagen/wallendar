@@ -33,8 +33,8 @@ public class PostVo {
 	private String usertag;
 	@Id
 	private Date postdate;
-	@Lob
-	private byte[] pic;
+	
+	private String pic;
 
 	private String tags;
 
