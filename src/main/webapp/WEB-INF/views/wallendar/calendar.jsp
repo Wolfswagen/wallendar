@@ -384,27 +384,27 @@
 
 				data.append("tags", tags)
 
-				$.ajax({
-					url : url + "/" + postdate,
-					processData : false,
-					contentType : false,
-					data : data,
-					type : method,
-					success : function(result) {
-						$('#post').text("Uploading....");
-						regetPost(usertag, postdate);
-						$('#postModal').modal("hide");
-						$('#readModal').modal("show");
-						$('#udmenu').attr("hidden", true);
-						$('#readModal').on('hide.bs.modal', function() {
-							localStorage.setItem("initdate", postdate);
-							window.location.reload();
-						});
-					},
-					error : function(request, status, error) {
-						alert($('#post').text() + " Error");
-					}
-				});
+				/* 				$.ajax({
+				 url : url + "/" + postdate,
+				 processData : false,
+				 contentType : false,
+				 data : data,
+				 type : method,
+				 success : function(result) {
+				 $('#post').text("Uploading....");
+				 regetPost(usertag, postdate);
+				 $('#postModal').modal("hide");
+				 $('#readModal').modal("show");
+				 $('#udmenu').attr("hidden", true);
+				 $('#readModal').on('hide.bs.modal', function() {
+				 localStorage.setItem("initdate", postdate);
+				 window.location.reload();
+				 });
+				 },
+				 error : function(request, status, error) {
+				 alert($('#post').text() + " Error");
+				 }
+				 }); */
 
 			} else {
 				alert("Must Put Image!!");
@@ -412,7 +412,6 @@
 		});
 
 		$("#upload, #bgupload").change(function() {
-
 			readURL(this);
 		});
 
@@ -574,7 +573,6 @@
 				alert('Please Choose Image File');
 			}
 		}
-
 	});
 </script>
 

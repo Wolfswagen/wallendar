@@ -26,11 +26,13 @@ public class SHA256Util {
 			byte[] byteData = md.digest();
 
 			StringBuffer sb = new StringBuffer();
+			
 			for (int i = 0; i < byteData.length; i++) {
 				sb.append(Integer.toString((byteData[i] & 0xFF) + 256, 16).substring(1));
-
 			}
+			
 			result = sb.toString();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
