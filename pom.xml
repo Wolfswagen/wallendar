@@ -9,11 +9,12 @@
 		<version>2.3.3.RELEASE</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
+	
 	<groupId>com.kosea</groupId>
 	<artifactId>wallendar</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.3</version>
 	<name>wallendar</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Wallendar project for Spring Boot</description>
 	<packaging>war</packaging>
 
 	<properties>

@@ -1,7 +1,6 @@
 <%@include file="../includes/header.jsp"%>
 <div class="text-center" id="userpost">
-	<input type="text" class="text-center border-0 text-secondary" style="font-size: 32px" readonly
-		size="30" id="seldate">
+	<input type="text" class="text-center border-0 text-secondary" style="font-size: 32px" readonly id="seldate">
 </div>
 <div class="text-center py-3" id="result">
 	<h2>No Result</h2>

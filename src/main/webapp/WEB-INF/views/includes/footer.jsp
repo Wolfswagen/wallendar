@@ -175,20 +175,19 @@
 		}
 	});
 
+	$('#search-btn-xs').on('click', function(e) {
+		if ($('#search-xs').val().length > 0) {
+			document.location.href = "/search/" + $('#search-xs').val();
+		}
+	});
+	
 	$('#search-xs').keypress(function(event) {
 		if (event.which == 13) {
 			$('#search-btn-xs').click();
 			return false;
 		}
 	});
-
-	$('#search-btn-xs').on('click', function(e) {
-		if ($('#search-xs').val().length > 0) {
-			document.location.href = "/search/" + $('#search').val();
-		}
-
-	});
-
+	
 	$('#search').keypress(function(event) {
 		if (event.which == 13) {
 			$('#search-btn').click();
@@ -276,7 +275,6 @@
 	}
 
 	$('#likebtn').on('click', function() {
-		console.log(selected);
 		var data = new Object();
 		data.usertag = $('#readModal #user-tag').text().substring(1);
 		data.postdate = $('#readModal .modal-title').text();
@@ -314,7 +312,6 @@
 	});
 
 	function commentOnClick(e) {
-		console.log($(e).text().substring(2));
 		if ($(e).text().substring(0, 1) == "x") {
 			$('#deleteModal .modal-title').text("Delete Comment");
 			$('#deletebtn').attr("data-rno", $(e).attr("data-rno"));
@@ -411,8 +408,8 @@
 			}
 
 		});
-
-		selected.attr("data-post", JSON.stringify(post));
+		
+		$("[data-date="+postdate+"]").data("post", post) 
 
 		return post;
 	}

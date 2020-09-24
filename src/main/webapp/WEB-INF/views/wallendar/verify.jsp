@@ -120,7 +120,7 @@
 	});
 
 	$('#checkcodeModal').on('show.bs.modal', function() {
-		var time = 30;
+		var time = 180;
 		var min = "";
 		var sec = "";
 		timer = setInterval(function() {

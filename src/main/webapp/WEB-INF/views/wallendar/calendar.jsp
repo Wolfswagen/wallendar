@@ -6,13 +6,12 @@
 	<img src="/image/backimg.png" class="card-img" id="bgimg" style="max-height: 200px">
 	<div class="card-img-overlay">
 		<div>
-			<h1 class="card-title font-weight-bolder">
+			<div class="card-title font-weight-bolder">
 				<img class="img-fluid rounded-circle border" style="width: 5%; min-width: 50px; background-color: white; background-size: cover;" src="../image/thumbnail.png" id="userimg">
 				<span id="usertag"></span>
-			</h1>
+			</div>
 		</div>
 	</div>
-	<div></div>
 </div>
 
 
@@ -164,7 +163,6 @@
 </div>
 
 <script charset="utf-8">
-	var selected;
 	document.addEventListener('DOMContentLoaded', function() {
 
 		if (!sessionStorage.getItem("loginuser")) {
@@ -213,23 +211,36 @@
 			eventBorderColor : "white",
 			events : events,
 			eventDidMount : function(info) {
-
 				let el = info.el;
-
 				let event = info.event;
-
 				var $td = $(el).closest("td");
-
 				if (event.extendedProps.post) {
 					$td.css({
 						"background-size" : "cover",
 						"background-image" : "url(data:image/jpeg;base64," + event.extendedProps.post.pic + ")"
 					});
-
 					$td.attr("data-post", JSON.stringify(event.extendedProps.post));
-
-					$td.attr("data-toggle", "modal").attr("data-target", "#readModal");
 				}
+			},
+			dateClick : function(info) {
+				let $day = $(info.dayEl);
+				if ($day.data("post")) {
+					var post = $day.data("post");
+
+					setReadModal(post);
+
+					if (usertag == sessionStorage.getItem("loginuser")) {
+						$('#udmenu').attr("hidden", false);
+					}
+
+					$('#readModal').modal("show")
+				} else {
+					if ($day[0] == $('.fc-day-today')[0] && usertag == sessionStorage.getItem("loginuser")) {
+						setPostModal($day.data("date"));
+						$('#postModal').modal("show");
+					}
+				}
+
 			}
 		});
 
@@ -237,9 +248,6 @@
 
 		localStorage.clear();
 
-		if ($(".fc-day-today").attr("data-toggle") == undefined && usertag == sessionStorage.getItem("loginuser")) {
-			$(".fc-day-today").attr("data-toggle", "modal").attr("data-target", "#postModal");
-		}
 		/* calendar rendered */
 
 		if (user.profileimg) {
@@ -270,23 +278,6 @@
 		}
 
 		/* userprofile */
-
-		$('#readModal').on('show.bs.modal', function(event) {
-
-			if ($(".fc-highlight").closest("td").length > 0) {
-				selected = $(".fc-highlight").closest("td");
-			}
-
-			var post = JSON.parse(selected.attr("data-post"));
-
-			setReadModal(post);
-
-			if (usertag == sessionStorage.getItem("loginuser")) {
-				$('#udmenu').attr("hidden", false);
-			}
-		});
-
-		/* modal */
 
 		/* follow modal */
 
@@ -332,11 +323,7 @@
 
 		/* follow modal */
 
-		$('#postModal').on('show.bs.modal', function(event) {
-			if ($(".fc-highlight").closest("td").length > 0) {
-				selected = $(".fc-highlight").closest("td");
-			}
-			var postdate = selected.attr("data-date");
+		function setPostModal(postdate) {
 			$('#postModal .modal-title').text(postdate);
 			$('#upload').empty();
 			$('#preview').attr("src", "");
@@ -345,7 +332,7 @@
 			$('#input-tag').val('');
 			$('#added-tags').empty();
 			$('#post').text("Post");
-		});
+		}
 
 		$('#addtag').on('click', function(e) {
 
@@ -462,8 +449,8 @@
 				alert("Must Put Image!!");
 			}
 		});
-		
-		$('#bgdelete').on('click', function(){
+
+		$('#bgdelete').on('click', function() {
 			$('#deleteModal .modal-title').text("Delete Image");
 			$('#deleteModal').modal("show");
 		});
