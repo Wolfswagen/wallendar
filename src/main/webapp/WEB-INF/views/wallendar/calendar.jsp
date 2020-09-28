@@ -205,7 +205,6 @@
 
 		/* calendar init */
 		var calendar = new FullCalendar.Calendar(calendarEl, {
-			initialView : 'dayGridMonth',
 			initialDate : localStorage.getItem("initdate"),
 			selectable : true,
 			eventBorderColor : "white",
