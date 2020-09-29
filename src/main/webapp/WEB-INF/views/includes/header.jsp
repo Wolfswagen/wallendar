@@ -32,7 +32,7 @@
 <link href="/theme/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 
 </head>
-<body id="page-top">
+<body id="page-top" style="background-size: cover;">
 	<!-- Topbar -->
 	<nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 

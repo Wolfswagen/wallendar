@@ -294,7 +294,7 @@
 					$('#preview').css({
 						"background-image" : "url(" + e.target.result + ")"
 					});
-					$('.custom-file-label').text(name);
+					$('.custom-file-label').text("");
 				}
 				reader.readAsDataURL(input.files[0]);
 			}

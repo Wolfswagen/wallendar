@@ -22,7 +22,7 @@
 		Follower : <span id="followernum"></span> / Following : <span id="followingnum"></span>
 	</button>
 	<button id="followbtn" class="btn btn-sm btn-light">+Follow</button>
-	<button type="button" class="btn btn-light float-right" id="bgbtn" data-toggle="modal"
+	<button type="button" class="btn btn-sm btn-light float-right" id="bgbtn" data-toggle="modal"
 		data-target="#bgModal" hidden="true">Update Wallpaper</button>
 </div>
 
@@ -205,6 +205,7 @@
 
 		/* calendar init */
 		var calendar = new FullCalendar.Calendar(calendarEl, {
+			initialView : 'dayGridMonth',
 			initialDate : localStorage.getItem("initdate"),
 			selectable : true,
 			eventBorderColor : "white",
@@ -570,7 +571,7 @@
 					reader.onload = function(e) {
 						$('#preview').attr('src', e.target.result);
 						$('#bgpreview').attr('src', e.target.result);
-						$('.custom-file-label').text(name);
+						$('.custom-file-label').text("");
 					}
 					reader.readAsDataURL(input.files[0]);
 				}
